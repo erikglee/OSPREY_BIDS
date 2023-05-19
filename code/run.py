@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import glob, argparse, os, json
 import numpy as np
+from localizer_alignment import localizer_alignment_anat_update_osprey
 
 #To change
 #participant label vs sub - done
@@ -19,6 +20,7 @@ parser.add_argument("json_settings", help="The path to the subject-agnostic JSON
 parser.add_argument('--participant_label', '--participant-label', help="The name/label of the subject to be processed (i.e. sub-01 or 01)", type=str)
 parser.add_argument('--segmentation_dir', '--segmentation-dir', help="The path to the folder where segmentations are stored (this is the same for all subjects)", type=str)
 parser.add_argument('--session_id', '--session-id', help="OPTIONAL: the name of a specific session to be processed (i.e. ses-01)", type=str)
+parser.add_argument('--localizer_registration', '--localizer-registration', help="OPTIONAL: Use localizer to register anatomical images to MRS scan. Also requires the use of --segmentation_dir argument", action='store_true')
 args = parser.parse_args()
 
 compiled_executable_path = os.getenv("EXECUTABLE_PATH")
@@ -49,7 +51,7 @@ if os.path.isabs(json_settings) == False:
 #Set session label
 if args.session_id:
     session_label = args.session_id
-    if 'ses-' not in session_id:
+    if 'ses-' not in session_label:
         session_label = 'ses-' + session_label
 else:
     session_label = None
@@ -58,9 +60,11 @@ else:
 if args.segmentation_dir:
     segmentation_dir = args.segmentation_dir
     if os.path.isabs(segmentation_dir) == False:
-	    segmentation_dir = os.path.join(cwd, segmentation_dir)
+        segmentation_dir = os.path.join(cwd, segmentation_dir)
+    use_localizer = args.localizer_registration
 else:
     segmentation_dir = None
+    use_localizer = False
     
 #Find participants to try running
 if args.participant_label:
@@ -83,7 +87,7 @@ else:
 
 def run_processing(settings_dict, mrs_files_dict, anat_files_dict, derivs_folder_path,
                    participant_label, session_partial_path, sequence, index,
-                   compiled_executable_path, mcr_path):
+                   compiled_executable_path, mcr_path, localizers = None):
         
     #If this is the first instance of this session/config combo being used for processing
     #dont number it with *_index, otherwise add the index
@@ -95,6 +99,13 @@ def run_processing(settings_dict, mrs_files_dict, anat_files_dict, derivs_folder
     #Create output folder to store results and json config file
     if os.path.exists(output_folder) == False:
         os.makedirs(output_folder)
+
+    #If localizer registration is being used, register the anat image + segmentation to
+    #the localizer, and update the anat_files_dict to reference the newly registered images
+    if type(localizers) == type(None):
+        pass
+    else:
+        anat_files_dict = localizer_alignment_anat_update_osprey(anat_files_dict, derivs_folder_path, localizers)
         
     #Update dictionary with settings for osprey
     joint_dict = settings_dict.copy()
@@ -130,6 +141,55 @@ def nifti_path_to_json_dict(nifti_path):
             json_dict = json.loads(f.read())
             
     return json_dict
+
+def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo):
+    '''Utility that picks which localizer to use with MRS images
+    
+    This function takes a pair of dictionaries representing localizer and MRS images
+    and returns the localizer that is closest in series number to the MRS image in
+    the case where the mrs image has a SeriesNumber field in its json sidecar. Otherwise,
+    it returns the last localizer(s) in the localizer_pairs_dict.
+
+    localizer_pairs_dict: dictionary of localizer images, where the keys are the series numbers
+    and the values are the paths to the images
+    mrs_files_combo: dictionary of MRS images, where the values are the paths to the images
+
+    returns: list of paths to localizer images to use for registration
+    
+    '''
+
+    mrs_series_numbers = []
+    localizer_series_numbers = []
+    series_found = 0
+    for mrs_file_req in mrs_files_combo.keys():
+        try:
+            mrs_series_numbers.append(nifti_path_to_json_dict(mrs_files_combo[mrs_file_req])['SeriesNumber'])
+            series_found = 1
+        except:
+            print('Warning: SeriesNumber field not found associated with MRS file {}, assuming that the last localizer series should be used in registration.'.format(mrs_files_combo[mrs_file_req]))
+
+    for temp_loc in localizer_pairs_dict.keys():
+        localizer_series_numbers.append(temp_loc)
+
+
+    mrs_series_numbers.sort()
+    localizer_series_numbers.sort()
+    if series_found == 0:
+        return localizer_pairs_dict[localizer_series_numbers[-1]]
+        
+    else:
+        best_localizer = None
+        localizer_found = False
+        for temp_localizer_series in localizer_series_numbers:
+            if temp_localizer_series < mrs_series_numbers[0]:
+                localizer_found = True
+                best_localizer = localizer_pairs_dict[temp_localizer_series]
+        if localizer_found == False:
+            raise ValueError('Error: Could not find a localizer series that was acquired before the MRS series. Please check your data.')
+        else:
+            return best_localizer
+
+    return
 
 
 def find_acceptable_file_combos(prereq_dict, subj_dir):
@@ -252,6 +312,7 @@ def find_acceptable_file_combos(prereq_dict, subj_dir):
             
     return acceptable_combinations
 
+
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
@@ -322,14 +383,40 @@ for temp_participant in participants:
                 num_files.append(len(prereq_dict[temp_prereq]))
                 all_files += prereq_dict[temp_prereq] 
 
+            #Grab all localizer scans within the current session and organize them into groups based on SeriesNumber
+            if use_localizer:
+                localizer_imgs = glob.glob(os.path.join(session_path, 'anat/*localizer*.nii*'))
+                if len(localizer_imgs) == 0:
+                    print('No localizer images found for ' + session_path + ', skipping processing for current session.')
+                else:
+                    localizer_series_nums = []
+                    for temp_img in localizer_imgs:
+                        temp_json = nifti_path_to_json_dict(temp_img)
+                        localizer_series_nums.append(temp_json['SeriesNumber'])
+                    unique_localizer_series_nums = list(set(localizer_series_nums))
+                    localizer_groups_dict = {}
+                    for temp_series_num in unique_localizer_series_nums:
+                        localizer_groups_dict[temp_series_num] = []
+                    for t, temp_series_num_sub in enumerate(localizer_series_nums):
+                        localizer_groups_dict[temp_series_num_sub].append(localizer_imgs[t])
+
 
 
             file_combos = find_acceptable_file_combos(prereq_dict, subject_path)
             index = 0
             for temp_combo in file_combos:
 
+
+                if use_localizer:
+                    #Find the best set of localizers for the current MRS images (or use the last localizer)
+                    best_localizers = find_closest_localizer_pair(temp_combo, localizer_groups_dict)
+                else:
+                    best_localizers = None
+
+                #Now need to update run_processing to accept the localizer pair...
+
                 run_processing(temp_sequence_dict, temp_combo, anats_dict, output_dir,
                        temp_participant, temp_session, temp_sequence, index,
-                       compiled_executable_path, mcr_path)
+                       compiled_executable_path, mcr_path, localizers = best_localizers)
 
                 index += 1
