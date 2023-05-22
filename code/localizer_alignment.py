@@ -14,7 +14,6 @@ import time
 
 
 def calc_center_of_mass(img_data, affine):
-    '''Calc center of mass in scanner coordinates'''
     
     com_ijk = ndimage.center_of_mass(img_data)
     com_ijk = np.array([com_ijk[0], com_ijk[1], com_ijk[2], 1])
@@ -22,38 +21,10 @@ def calc_center_of_mass(img_data, affine):
     return com_xyz
 
 def calc_affine(original_affine, trans_x, trans_y, trans_z, rot_x, rot_y, rot_z, center_of_mass = None):
-    '''Function to come up with rotation/translation matrix
     
-    Parameters
-    ----------
-    original_affine : 4x4 numpy array
-        Affine matrix of the original image
-    trans_x : float
-        Translation in x direction
-    trans_y : float
-        Translation in y direction
-    trans_z : float
-        Translation in z direction
-    rot_x : float
-        Rotation in x direction (radians)
-    rot_y : float
-        Rotation in y direction (radians)
-    rot_z : float
-        Rotation in z direction (radians)
-    center_of_mass : None or 4x1 numpy array
-        If None, rotations will be calculated about the axis 0,0,0,
-        otherwise of center of mass is provided, the rotations will
-        be about this coordinate. The fourth value here should just
-        be 1.
-
-    Returns
-    -------
-
-    new_affine : 4x4 numpy array
-        The new affine after applying the translations and rotations
+    #WHERE TO BRING IN CENTER OF MASS CALCULATION??? MAYBE THINGS WILL CONVERGE FAST
+    #ENOUGH WHERE THIS ISN"T NECESSARY
     
-    
-    '''
     
     #Make empty matrices for rotations
     mat_rot_x = np.eye(4)
@@ -100,6 +71,9 @@ def calc_affine(original_affine, trans_x, trans_y, trans_z, rot_x, rot_y, rot_z,
     #print(new_affine)
     
     return new_affine
+
+def apply_affine(transoformation, original_affine):
+    return np.matmul(transformation, original_affine)
 
 def grab_orig_inds_xyz_mat(image_data, affine):
     
@@ -187,9 +161,13 @@ def make_alignment_images(full_registered_nifti_path, localizers_arr_path, outpu
         temp_loc_data = temp_loc_img.get_fdata()
         smallest_dim = np.argmin(temp_loc_data.shape)
         num_slices = temp_loc_data.shape[smallest_dim]
+        if num_slices > 4:
+            slices = np.round(np.linspace(0, num_slices, 6)[1:-2]).astype(int)
+        else:
+            slices = np.linspace(0,num_slices - 1,num_slices).astype(int)
         flattened_inds_vals = grab_orig_inds_xyz_mat(temp_loc_data, temp_loc_img.affine)
         reshaped_inds = flattened_inds_vals[0].reshape((4, temp_loc_data.shape[0], temp_loc_data.shape[1], temp_loc_data.shape[2]))
-        for temp_slice_num in range(num_slices):
+        for temp_slice_num in slices:
             if smallest_dim == 0:
                 temp_slice = reshaped_inds[:,temp_slice_num,...]
                 temp_slice_data = temp_loc_data[temp_slice_num,:,:]
@@ -209,14 +187,9 @@ def make_alignment_images(full_registered_nifti_path, localizers_arr_path, outpu
             inds_xyz_to_ijk = np.matmul(np.linalg.inv(full_affine), flattened_slice_inds)
             out_vals = interp(inds_xyz_to_ijk[0:3,:].transpose())
             out_vals = out_vals.reshape((temp_slice.shape[1], temp_slice.shape[2]))
-            
-            #Calculate the correlation at the specific slice between the 
-            #localizer and full 3d image
-            slice_corr = np.round(np.corrcoef(out_vals[~np.isnan(out_vals)].flatten(), temp_slice_data[~np.isnan(out_vals)].flatten())[0,1], 2)
-            slice_specific_corrs.append(slice_corr)
 
             #Plot 
-            plt.figure(dpi=100)
+            plt.figure(dpi=200)
             plt.subplot(1,3,1)
             plt.imshow(out_vals)
             plt.xticks(np.arange(0,out_vals.shape[0],25), labels='')
@@ -230,16 +203,16 @@ def make_alignment_images(full_registered_nifti_path, localizers_arr_path, outpu
             plt.yticks(np.arange(0,out_vals.shape[1],25), labels='')
             plt.gca().grid(color='red', linestyle='-.', linewidth=1)
             plt.subplot(1,3,3)
-            plt.imshow(temp_slice_data - out_vals)
-            plt.title('Difference (slice corr: {})'.format(slice_corr))
+            plt.imshow((temp_slice_data - np.nanmean(temp_slice_data))/np.nanstd(temp_slice_data) - (out_vals - np.nanmean(out_vals))/np.nanstd(out_vals))
+            plt.title('Difference')
             plt.xticks(np.arange(0,out_vals.shape[0],25), labels='')
             plt.yticks(np.arange(0,out_vals.shape[1],25), labels='')
             plt.gca().grid(color='red', linestyle='-.', linewidth=1)
             plt.tight_layout()
             plt.savefig(os.path.join(output_figures_folder, 'localizer_{}_slice_{}.png'.format(i, temp_slice_num)), bbox_inches='tight')
-            #plt.close()
-            
-    return slice_specific_corrs
+            if close_figures:
+                plt.close()                
+    return
 
 def calc_loss(af_vals, localizer_imgs, localizer_vals, reference_data, reference_affine, center_of_mass):
     
@@ -261,6 +234,7 @@ def calc_localizer_val_bins(localizer_vals):
     
     std = np.std(localizer_vals)
     bin_widths = 3.49*std*np.power(localizer_vals.shape[0], -1/3) #This equation is optimal for unimodal case per page 151 of jenkinson paper 
+    #bin_widths = 2*std*np.power(localizer_vals.shape[0], -1/3)
     num_bins = int((np.max(localizer_vals) - np.min(localizer_vals))/bin_widths)
     bins = np.histogram(localizer_vals, num_bins)
     binned_data = np.zeros(localizer_vals.shape)
@@ -270,7 +244,7 @@ def calc_localizer_val_bins(localizer_vals):
         
     return binned_data
 
-def calc_corr_ratio_loss(af_vals, localizer_imgs, localizer_vals, reference_data, reference_affine, mask_data, center_of_mass, make_plot = False):
+def calc_corr_ratio_loss(af_vals, localizer_imgs, localizer_vals, reference_data, reference_affine, mask_data, center_of_mass, make_plot = False, image_output_path = None):
     
     affine_transforms = []
     new_xyz_s_list = []
@@ -297,20 +271,189 @@ def calc_corr_ratio_loss(af_vals, localizer_imgs, localizer_vals, reference_data
     
     
     if make_plot:
-        pass
+        make_corr_ratio_loss_plot(unique_loc_vals, good_loc, good_ref, output_image_path = image_output_path, close_image = False)
         
     
     return loss
 
-def make_corr_ratio_loss_plot():
+def make_corr_ratio_loss_plot(unique_loc_vals, good_loc, good_ref, output_image_path = None, close_image = True):
     
+    plt.figure(dpi = 100)
+    differences_1 = []
+    bin_jitters_1 = []
+    differences_2 = []
+    bin_jitters_2 = []
+    for i in range(unique_loc_vals.shape[0]):
+        
+        temp_vals = good_ref[good_loc == unique_loc_vals[i]]
+        temp_differences = np.log10(np.absolute(temp_vals - np.mean(temp_vals)))*np.sign(temp_vals - np.mean(temp_vals))
+        temp_bin_jitters = np.random.uniform(low = i, high = i + 1, size = temp_differences.shape)
+        
+        if np.mod(i,2) == 0:
+            differences_1.append(temp_differences)
+            bin_jitters_1.append(temp_bin_jitters)
+        else:
+            differences_2.append(temp_differences)
+            bin_jitters_2.append(temp_bin_jitters)
+    
+    differences_1 = np.hstack(differences_1)
+    bin_jitters_1 = np.hstack(bin_jitters_1)
+    differences_2 = np.hstack(differences_2)
+    bin_jitters_2 = np.hstack(bin_jitters_2)
+    plt.scatter(bin_jitters_1, differences_1, s = 0.05)
+    plt.scatter(bin_jitters_2, differences_2, s = 0.05)
+    plt.xlabel('Bin Number')
+    plt.ylabel('sign(Deviation)*log10(absolute(Deviation))')
+    plt.axhline(2.5, linestyle = '--', color = 'grey', linewidth = 1)
+    plt.axhline(-2.5, linestyle = '--', color = 'grey', linewidth = 1)
+    if type(output_image_path) == type(None):
+        pass
+    else:
+        plt.savefig(output_image_path)
+    
+    if close_image:
+        plt.close()
+        
+    return
+
+def make_readme(affine_readme_path):
+    
+    with open(affine_readme_path, 'w') as f:
+        f.write('This folder contains registration results from a high res anatomical template to a localizer thats presumed to be in MRS voxel space.\n')
+        f.write('The details of what images were registered can be found in registration_summary.json and figures showing the quality of the registration can be found in the figures folder.\n')
+        f.write('The new copy of the reference image (now aligned to the localizer) is found at reference_img_aligned_to_localizer.nii.gz\n\n')
+        f.write('How to use transform_mat.npy file:\n\n\n')
+        f.write('import nibabel as nib\nimport numpy as np\npath_to_image_in_reference_space = ""\ntemp_img = nib.load(path_to_image_in_reference_space)\n')
+        f.write('transform_mat = np.load("transform_mat.npy")\ntemp_img.affine = np.matmul(transform_mat, temp_img.affine)\n')
+        f.write('nib.save(temp_img, "/some/new/path/for/image/now/in/localizer/space/img.nii.gz")')
+        
     return
 
 
+def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_foler, localizer_paths):
+    '''Registers anat reference image to the localizer image(s)
+    
+    
+    
+    Parameters
+    ----------
+    
+    anat_files_dict : dict
+        Has (at minimum) key 'files_nii' that will be
+        registered to the localizer image. After registration,
+        this path will be reset to be the path to the new image
+        following registration.
+    registration_output_folder : str
+        Path to the folder that will be created to store registration
+        results. This will be subject/ses and in certain cases run
+        specific.
+    localizer_paths : list of strings
+        The paths to the localizer image or images to be registered.
+        You will only have multiple entries in this list if axial
+        images were stored in different images than sagital or coronal.
+        
+    Returns
+    -------
+    
+    anat_files_dict : dict
+        The same dictionary as before, but now the 'files_nii' key
+        has been updated to point to the registered image
+    
+    
+    
+    '''
+    
+    output_folder = registration_output_foler
+    if os.path.exists(os.path.join(output_folder, 'figures')) == False:
+        os.makedirs(os.path.join(output_folder, 'figures'))
+    make_readme(os.path.join(output_folder, 'readme.txt'))
+
+    #Load the reference image
+    reference_path = anat_files_dict['files_nii'][0]
+    reference_img = nib.load(reference_path)
+    reference_data = reference_img.get_fdata()
+
+    #Load and dilate brain mask by 10 iterations ... this keeps the scalp in registration but not neck
+    #USING MASK SEEMED TO HURT REGISTRATION FOR LOWRES LOCALIZERS SO AM EXCLUDING THIS FOR NOW
+    #mask_data = nib.load(brain_mask_path).get_fdata()
+    #mask_data = ndimage.binary_dilation(mask_data, iterations = 10)
+    #mask_data = mask_data.astype(float) + 1
+
+    reference_data_10mm_smoothing = processing.smooth_image(reference_img, 10).get_fdata()
+    reference_com = calc_center_of_mass(reference_data, reference_img.affine)
+    #reference_com = None
+
+    localizer_imgs = []
+    xyz_s_list = []
+    vals = []
+    localizer_sizes = []
+    for i, temp_path in enumerate(localizer_paths):
+        localizer_imgs.append(nib.load(temp_path))
+        temp_xyz, temp_vals = grab_orig_inds_xyz_mat(localizer_imgs[i].get_fdata(), localizer_imgs[i].affine)
+        xyz_s_list.append(temp_xyz)
+        vals.append(temp_vals)
+
+        localizer_sizes.append(localizer_imgs[i].get_fdata().size)
+
+    xyz_s_arr = np.hstack(xyz_s_list)
+    localizer_vals = np.hstack(vals)
+    localizer_vals = calc_localizer_val_bins(localizer_vals) #NOW THESE ARE BINS
+    reference_vals = grab_image_vals(reference_data, reference_img.affine, xyz_s_arr, interp_method = 'linear')
 
 
-def localizer_alignment_anat_update_osprey(anat_files_dict, derivs_folder_path, localizers):
+    good_ref = reference_vals[np.isnan(reference_vals) == False]
+    good_loc = localizer_vals[np.isnan(reference_vals) == False]
+    print('Original Ref/Localizer Correlation Ratio (0 is best, 1 is worst):')
+    original_corr = calc_corr_ratio_loss([0,0,0,0,0,0], localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com, make_plot = True, image_output_path = os.path.join(registration_output_folder, 'figures', 'corr_ratio_pre_registration.png'))
+    print(original_corr)
+
+    bounds_10mm = [[-100,100],[-100,100],[-100,100],[-1.5,1.5],[-1.5,1.5],[-1.5,1.5]]
+    tic = time.perf_counter()
+    options = {'maxfun':5000, 'maxiter':50}
+    results_tnc_10mm = optimize.minimize(calc_corr_ratio_loss, [0,0,0,0,0,0], args=(localizer_imgs, localizer_vals, reference_data_10mm_smoothing, reference_img.affine, mask_data, reference_com),
+                                          method='TNC', jac=None, bounds=bounds_10mm, options=options)
+    results_tnc_00mm = optimize.minimize(calc_corr_ratio_loss, results_tnc_10mm.x, args=(localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com),
+                                          method='TNC', jac=None, bounds=bounds_10mm, options=options)
+
+    toc = time.perf_counter()
+    print(f"Ran optimization in {toc - tic:0.4f} seconds")
+
+    ###Illustrate the performance of the new transformation
+    affine_transforms = []
+    new_xyz_s_list = []
+    for i, temp_img in enumerate(localizer_imgs):
+        affine_transforms.append(calc_affine(localizer_imgs[i].affine, results_tnc_00mm.x[0], results_tnc_00mm.x[1], results_tnc_00mm.x[2], results_tnc_00mm.x[3], results_tnc_00mm.x[4], results_tnc_00mm.x[5], reference_com)) #transform to apply
+        new_xyz_s_list.append(get_new_xyzs(affine_transforms[i], xyz_s_list[i]))
+    new_xyz_s_arr = np.hstack(new_xyz_s_list)
+    reference_vals = grab_image_vals(reference_data, reference_img.affine, new_xyz_s_arr, interp_method = 'linear')
+    good_ref = reference_vals[np.isnan(reference_vals) == False]
+    good_loc = localizer_vals[np.isnan(reference_vals) == False]
+    print('Registered Ref/Localizer Correlation (0 is best, 1 is worst):')
+    registered_corr = calc_corr_ratio_loss(results_tnc_00mm.x, localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com, make_plot = True, image_output_path = os.path.join(registration_output_folder, 'figures', 'corr_ratio_post_registration.png'))
+    print(registered_corr)
+
+    ###NEXT STEP:
+    #1. Transform the reference image into localizer space and save it as output
+    #2. Save the transformation matrix as output
+
+    inv_affine = calc_affine(np.eye(4), results_tnc_00mm.x[0], results_tnc_00mm.x[1], results_tnc_00mm.x[2], results_tnc_00mm.x[3], results_tnc_00mm.x[4], results_tnc_00mm.x[5], reference_com)
+    inv_affine = np.linalg.inv(inv_affine)
+    new_affine = np.matmul(inv_affine, reference_img.affine)
+    new_img = nib.nifti1.Nifti1Image(reference_data, new_affine)
+    registered_output_image_name = os.path.join(output_folder, 'reference_img_aligned_to_localizer.nii.gz')
+    nib.save(new_img, registered_output_image_name)
+    np.save(os.path.join(output_folder, 'transform_mat.npy'), inv_affine) #This can be used with other images to update their affines
 
 
+    make_alignment_images(registered_output_image_name, localizer_paths, os.path.join(output_folder, 'figures'))
+    registration_dict = {"reference_img" : reference_path,
+                         "localizer_imgs": localizer_paths,
+                         "reference_localizer_corr_ratio_pre_registration" : np.round(original_corr, 8),
+                         "reference_localizer_corr_ratio_post_registration" : np.round(registered_corr, 8)}
 
-    return
+    with open(os.path.join(output_folder, 'registration_summary.json'), 'w') as f:
+        f.write(json.dumps(registration_dict, indent = 6))
+        
+    anat_files_dict['files_nii'] = registered_output_image_name
+        
+    return anat_files_dict

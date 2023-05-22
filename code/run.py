@@ -105,7 +105,8 @@ def run_processing(settings_dict, mrs_files_dict, anat_files_dict, derivs_folder
     if type(localizers) == type(None):
         pass
     else:
-        anat_files_dict = localizer_alignment_anat_update_osprey(anat_files_dict, derivs_folder_path, localizers)
+        registration_output_foler = os.path.join(output_folder, 'pre_osprey_localizer_reg')
+        anat_files_dict = localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_foler, localizers)
         
     #Update dictionary with settings for osprey
     joint_dict = settings_dict.copy()
