@@ -26,7 +26,10 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/
 
 #Install relavent python packages
-RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt update 
+RUN apt install software-properties-common 
+RUN add-apt-repository ppa:deadsnakes/ppa 
+RUN apt update 
 RUN apt install python3.9
 RUN python3 -m pip install numpy==1.19.2
 RUN python3 -m pip install scipy==1.8.0
