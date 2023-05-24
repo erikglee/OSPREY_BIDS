@@ -11,6 +11,7 @@ from scipy import optimize
 import os, glob
 import json
 import time
+import shutil
 
 
 def calc_center_of_mass(img_data, affine):
