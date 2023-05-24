@@ -427,16 +427,25 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
     reference_vals = grab_image_vals(reference_data, reference_img.affine, new_xyz_s_arr, interp_method = 'linear')
     good_ref = reference_vals[np.isnan(reference_vals) == False]
     good_loc = localizer_vals[np.isnan(reference_vals) == False]
-    print('Registered Ref/Localizer Correlation (0 is best, 1 is worst):')
     registered_corr = calc_corr_ratio_loss(results_tnc_00mm.x, localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com, xyz_s_list, make_plot = True, image_output_path = os.path.join(registration_output_folder, 'figures', 'corr_ratio_post_registration.png'))
+    if original_corr > registered_corr:
+        inv_affine = calc_affine(np.eye(4), results_tnc_00mm.x[0], results_tnc_00mm.x[1], results_tnc_00mm.x[2], results_tnc_00mm.x[3], results_tnc_00mm.x[4], results_tnc_00mm.x[5], reference_com)
+        inv_affine = np.linalg.inv(inv_affine)
+    else:
+        inv_affine = np.eye(4)
+        registered_corr = original_corr
+        shutil.copyfile(os.path.join(registration_output_folder, 'figures', 'corr_ratio_pre_registration.png'), os.path.join(registration_output_folder, 'figures', 'corr_ratio_post_registration.png'))
+        
+    print('Registered Ref/Localizer Correlation (0 is best, 1 is worst):')
     print(registered_corr)
 
-    ###NEXT STEP:
-    #1. Transform the reference image into localizer space and save it as output
-    #2. Save the transformation matrix as output
 
-    inv_affine = calc_affine(np.eye(4), results_tnc_00mm.x[0], results_tnc_00mm.x[1], results_tnc_00mm.x[2], results_tnc_00mm.x[3], results_tnc_00mm.x[4], results_tnc_00mm.x[5], reference_com)
-    inv_affine = np.linalg.inv(inv_affine)
+    if original_corr > registered_corr:
+        inv_affine = calc_affine(np.eye(4), results_tnc_00mm.x[0], results_tnc_00mm.x[1], results_tnc_00mm.x[2], results_tnc_00mm.x[3], results_tnc_00mm.x[4], results_tnc_00mm.x[5], reference_com)
+        inv_affine = np.linalg.inv(inv_affine)
+    else:
+        inv_affine = np.eye(4)
+        registered_corr = original_corr
     new_affine = np.matmul(inv_affine, reference_img.affine)
     new_img = nib.nifti1.Nifti1Image(reference_data, new_affine)
     registered_output_image_name = os.path.join(output_folder, 'reference_img_aligned_to_localizer.nii.gz')
