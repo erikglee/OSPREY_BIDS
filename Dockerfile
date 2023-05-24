@@ -33,6 +33,7 @@ RUN apt-get update && \
 #ENV DEBIAN_FRONTEND=noninteractive
 #RUN apt install python3.9 -y
 RUN apt-get install -y python3
+RUN apt-get install -y python3-dev
 RUN python3 -m pip install python-dev-tools
 RUN python3 -m pip install numpy==1.19.2
 RUN python3 -m pip install scipy==1.8.0
