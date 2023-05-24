@@ -26,12 +26,13 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/
 
 #Install relavent python packages
-RUN apt update 
-RUN apt install software-properties-common -y
-RUN add-apt-repository ppa:deadsnakes/ppa -y
-RUN apt update 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt install python3.9 -y
+#RUN apt update 
+#RUN apt install software-properties-common -y
+#RUN add-apt-repository ppa:deadsnakes/ppa -y
+#RUN apt update 
+#ENV DEBIAN_FRONTEND=noninteractive
+#RUN apt install python3.9 -y
+RUN apt-get install -y python3
 RUN python3 -m pip install numpy==1.19.2
 RUN python3 -m pip install scipy==1.8.0
 RUN python3 -m pip install nibabel==3.2.2
