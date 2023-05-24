@@ -26,10 +26,10 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/
 
 #Install relavent python packages
-RUN pip install numpy=1.19.2
-RUN pip install scipy=1.8.0
-RUN pip install nibabel=3.2.2
-RUN pip install matplotlib=3.5.1
+RUN pip install numpy==1.19.2
+RUN pip install scipy==1.8.0
+RUN pip install nibabel==3.2.2
+RUN pip install matplotlib==3.5.1
 
 
 #Setup MCR - this grabs v910 of MCR that was downloaded from the matlab
