@@ -72,9 +72,6 @@ def calc_affine(original_affine, trans_x, trans_y, trans_z, rot_x, rot_y, rot_z,
     
     return new_affine
 
-def apply_affine(transoformation, original_affine):
-    return np.matmul(transformation, original_affine)
-
 def grab_orig_inds_xyz_mat(image_data, affine):
     
     #This should be finished
@@ -214,7 +211,7 @@ def make_alignment_images(full_registered_nifti_path, localizers_arr_path, outpu
                 plt.close()                
     return
 
-def calc_loss(af_vals, localizer_imgs, localizer_vals, reference_data, reference_affine, center_of_mass):
+def calc_loss(af_vals, localizer_imgs, localizer_vals, reference_data, reference_affine, center_of_mass, xyz_s_list):
     
     affine_transforms = []
     new_xyz_s_list = []
@@ -244,7 +241,7 @@ def calc_localizer_val_bins(localizer_vals):
         
     return binned_data
 
-def calc_corr_ratio_loss(af_vals, localizer_imgs, localizer_vals, reference_data, reference_affine, mask_data, center_of_mass, make_plot = False, image_output_path = None):
+def calc_corr_ratio_loss(af_vals, localizer_imgs, localizer_vals, reference_data, reference_affine, mask_data, center_of_mass, xyz_s_list, make_plot = False, image_output_path = None):
     
     affine_transforms = []
     new_xyz_s_list = []
@@ -330,7 +327,7 @@ def make_readme(affine_readme_path):
     return
 
 
-def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_foler, localizer_paths):
+def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_folder, localizer_paths):
     '''Registers anat reference image to the localizer image(s)
     
     
@@ -363,7 +360,7 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
     
     '''
     
-    output_folder = registration_output_foler
+    output_folder = registration_output_folder
     if os.path.exists(os.path.join(output_folder, 'figures')) == False:
         os.makedirs(os.path.join(output_folder, 'figures'))
     make_readme(os.path.join(output_folder, 'readme.txt'))
@@ -381,6 +378,7 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
 
     reference_data_10mm_smoothing = processing.smooth_image(reference_img, 10).get_fdata()
     reference_com = calc_center_of_mass(reference_data, reference_img.affine)
+    mask_data = np.ones(reference_data.shape) #we arent using a mask right now so this is just a dummy mask
     #reference_com = None
 
     localizer_imgs = []
@@ -404,15 +402,15 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
     good_ref = reference_vals[np.isnan(reference_vals) == False]
     good_loc = localizer_vals[np.isnan(reference_vals) == False]
     print('Original Ref/Localizer Correlation Ratio (0 is best, 1 is worst):')
-    original_corr = calc_corr_ratio_loss([0,0,0,0,0,0], localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com, make_plot = True, image_output_path = os.path.join(registration_output_folder, 'figures', 'corr_ratio_pre_registration.png'))
+    original_corr = calc_corr_ratio_loss([0,0,0,0,0,0], localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com, xyz_s_list, make_plot = True, image_output_path = os.path.join(registration_output_folder, 'figures', 'corr_ratio_pre_registration.png'))
     print(original_corr)
 
     bounds_10mm = [[-100,100],[-100,100],[-100,100],[-1.5,1.5],[-1.5,1.5],[-1.5,1.5]]
     tic = time.perf_counter()
     options = {'maxfun':5000, 'maxiter':50}
-    results_tnc_10mm = optimize.minimize(calc_corr_ratio_loss, [0,0,0,0,0,0], args=(localizer_imgs, localizer_vals, reference_data_10mm_smoothing, reference_img.affine, mask_data, reference_com),
+    results_tnc_10mm = optimize.minimize(calc_corr_ratio_loss, [0,0,0,0,0,0], args=(localizer_imgs, localizer_vals, reference_data_10mm_smoothing, reference_img.affine, mask_data, reference_com, xyz_s_list),
                                           method='TNC', jac=None, bounds=bounds_10mm, options=options)
-    results_tnc_00mm = optimize.minimize(calc_corr_ratio_loss, results_tnc_10mm.x, args=(localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com),
+    results_tnc_00mm = optimize.minimize(calc_corr_ratio_loss, results_tnc_10mm.x, args=(localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com, xyz_s_list),
                                           method='TNC', jac=None, bounds=bounds_10mm, options=options)
 
     toc = time.perf_counter()
@@ -429,7 +427,7 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
     good_ref = reference_vals[np.isnan(reference_vals) == False]
     good_loc = localizer_vals[np.isnan(reference_vals) == False]
     print('Registered Ref/Localizer Correlation (0 is best, 1 is worst):')
-    registered_corr = calc_corr_ratio_loss(results_tnc_00mm.x, localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com, make_plot = True, image_output_path = os.path.join(registration_output_folder, 'figures', 'corr_ratio_post_registration.png'))
+    registered_corr = calc_corr_ratio_loss(results_tnc_00mm.x, localizer_imgs, localizer_vals, reference_data, reference_img.affine, mask_data, reference_com, xyz_s_list, make_plot = True, image_output_path = os.path.join(registration_output_folder, 'figures', 'corr_ratio_post_registration.png'))
     print(registered_corr)
 
     ###NEXT STEP:
