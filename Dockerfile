@@ -26,8 +26,8 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/
 
 #Install relavent python packages
-RUN sudo add-apt-repository ppa:deadsnakes/ppa
-RUN sudo apt install python3.9
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt install python3.9
 RUN python3 -m pip install numpy==1.19.2
 RUN python3 -m pip install scipy==1.8.0
 RUN python3 -m pip install nibabel==3.2.2
