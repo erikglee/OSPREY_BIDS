@@ -59,17 +59,17 @@ RUN cd /code && unzip -q ./code.zip
 RUN mkdir /python_code
 COPY ./code/run.py /python_code
 COPY ./code/localizer_alignment.py /python_code 
+COPY hbcd_pilot_config.json /python_code
 RUN rm /code/code.zip
 
 #Export paths
 ENV MCR_PATH=/mcr_path
-ENV EXECUTABLE_PATH=/code/run_compiled.sh
+ENV EXECUTABLE_PATH=/code/HBCD/run_compiled.sh
 
 #Set permissions
 RUN chmod 555 -R /mcr_path /code /python_code
 
 #Add code dir to path
-#ENV PATH="${PATH}:/code"
 ENV PATH="${PATH}:/python_code"
 RUN pipeline_name=osprey && cp /python_code/run.py /python_code/$pipeline_name
 
