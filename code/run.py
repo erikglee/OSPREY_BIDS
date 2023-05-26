@@ -366,7 +366,7 @@ for temp_participant in participants:
             seg_files = glob.glob(seg_path_template)
             if len(seg_files) != 1:
                 raise ValueError('Error: expected to find 1 segmentation matching ' + seg_path_template + ', but found ' + str(len(seg_files)))
-            anats_dict['files_seg'] = seg_files
+            anats_dict['files_seg'] = [seg_files]
 
         #Iterate through processing configurations defined in the input json file
         for temp_sequence in master_settings.keys():
