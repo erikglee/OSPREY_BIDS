@@ -389,6 +389,7 @@ for temp_participant in participants:
                 localizer_imgs = glob.glob(os.path.join(session_path, 'anat/*localizer*.nii*'))
                 if len(localizer_imgs) == 0:
                     print('No localizer images found for ' + session_path + ', skipping processing for current session.')
+                    continue
                 else:
                     localizer_series_nums = []
                     for temp_img in localizer_imgs:
