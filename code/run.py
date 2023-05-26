@@ -411,7 +411,7 @@ for temp_participant in participants:
 
                 if use_localizer:
                     #Find the best set of localizers for the current MRS images (or use the last localizer)
-                    best_localizers = find_closest_localizer_pair(temp_combo, localizer_groups_dict)
+                    best_localizers = find_closest_localizer_pair(localizer_groups_dict, temp_combo)
                 else:
                     best_localizers = None
 
