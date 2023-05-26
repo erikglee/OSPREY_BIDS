@@ -452,11 +452,11 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
     nib.save(new_img, registered_output_image_name)
     np.save(os.path.join(output_folder, 'transform_mat.npy'), inv_affine) #This can be used with other images to update their affines
     if 'files_seg' in anat_files_dict.keys():
-        new_seg_img = nib.load(anat_files_dict['files_seg'])
+        new_seg_img = nib.load(anat_files_dict['files_seg'][0])
         new_seg_img = nib.Nifti1Image(new_seg_img.get_fdata(), new_affine)
         print('Saving new segmentation image.')
         nib.save(new_seg_img, os.path.join(output_folder, 'reference_seg_aligned_to_localizer.nii.gz'))
-        anat_files_dict['files_seg'] = os.path.join(output_folder, 'reference_seg_aligned_to_localizer.nii.gz')
+        anat_files_dict['files_seg'] = [os.path.join(output_folder, 'reference_seg_aligned_to_localizer.nii.gz')]
 
 
     make_alignment_images(registered_output_image_name, localizer_paths, os.path.join(output_folder, 'figures'))
