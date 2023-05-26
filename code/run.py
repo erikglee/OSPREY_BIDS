@@ -417,7 +417,7 @@ for temp_participant in participants:
 
                 #Now need to update run_processing to accept the localizer pair...
 
-                run_processing(temp_sequence_dict, temp_combo, anats_dict, output_dir,
+                run_processing(temp_sequence_dict, temp_combo, anats_dict.copy(), output_dir,
                        temp_participant, temp_session, temp_sequence, index,
                        compiled_executable_path, mcr_path, localizers = best_localizers)
 
