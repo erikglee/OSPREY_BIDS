@@ -62,9 +62,10 @@ COPY ./code/localizer_alignment.py /python_code
 COPY hbcd_pilot_config.json /python_code
 RUN rm /code/code.zip
 
-#Export paths
-ENV MCR_PATH=/mcr_path
+#Export paths (make sure LD_LIBRARY_PATH is set to the correct version)
+ENV MCR_PATH=/mcr_path/v912
 ENV EXECUTABLE_PATH=/code/HBCD/run_compiled.sh
+ENV LD_LIBRARY_PATH ="${LD_LIBRARY_PATH}:/mcr_path/v912/runtime/glnxa64:/mcr_path/v912/bin/glnxa64:/mcr_path/v912/sys/os/glnxa64:/mcr_path/v912/extern/bin/glnxa64"
 
 #Set permissions
 RUN chmod 555 -R /mcr_path /code /python_code
