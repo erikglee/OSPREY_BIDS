@@ -25,6 +25,7 @@ args = parser.parse_args()
 
 compiled_executable_path = os.getenv("EXECUTABLE_PATH")
 mcr_path = os.getenv("MCR_PATH")
+basis_sets_path = os.getenv("BASIS_SETS_PATH")
 
 
 #export EXECUTABLE_PATH=/home/midb-ig/shared/HBCD/mrs/osprey_dirs_for_containerization/osprey_containerization_code_v1/run_compiled.sh
@@ -110,6 +111,7 @@ def run_processing(settings_dict, mrs_files_dict, anat_files_dict, derivs_folder
         
     #Update dictionary with settings for osprey
     joint_dict = settings_dict.copy()
+    joint_dict['basisSet'] = basis_sets_path
     joint_dict.update(mrs_files_dict)
     joint_dict.update(anat_files_dict)
     del joint_dict['prerequisites']
