@@ -9,8 +9,8 @@
             "files_ref" : "*_acq-hercules_*ref.nii*"
         }
     },
-    "PRESS": {
-        "seqType": "PRESS",
+    "unedited": {
+        "seqType": "unedited",
         "ECCmetab": "1",
         "prerequisites": {
             "files" : "*_acq-shortTE_*svs.nii*",

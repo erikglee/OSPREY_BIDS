@@ -468,6 +468,6 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
     with open(os.path.join(output_folder, 'registration_summary.json'), 'w') as f:
         f.write(json.dumps(registration_dict, indent = 6))
         
-    anat_files_dict['files_nii'] = registered_output_image_name
+    anat_files_dict['files_nii'] = [registered_output_image_name]
         
     return anat_files_dict
