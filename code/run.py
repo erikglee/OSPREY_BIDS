@@ -364,11 +364,22 @@ for temp_participant in participants:
 
         #Grab segmentation
         if isinstance(segmentation_dir, type(None)) == False:
-            seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-orig_desc-aseg_dseg.nii.gz')
-            seg_files = glob.glob(seg_path_template)
-            if len(seg_files) != 1:
-                raise ValueError('Error: expected to find 1 segmentation matching ' + seg_path_template + ', but found ' + str(len(seg_files)))
-            anats_dict['files_seg'] = [seg_files]
+            
+            #First look for CABINET output in T2 space
+            t2_seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-T2w_desc-aseg_dseg.nii.gz')
+            t2_seg_files = glob.glob(t2_seg_path_template)
+            t1_seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-T1w_desc-aseg_dseg.nii.gz')
+            t1_seg_files = glob.glob(t1_seg_path_template)
+            space_seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-orig_desc-aseg_dseg.nii.gz')
+            space_seg_files = glob.glob(space_seg_path_template)
+            if len(t2_seg_files) == 1:
+                anats_dict['files_seg'] = [t2_seg_files]
+            elif len(t1_seg_files) == 1:
+                anats_dict['files_seg'] = [t1_seg_files]
+            elif len(space_seg_files) == 1:
+                anats_dict['files_seg'] = [space_seg_files]
+            else:
+                raise ValueError('Error: expected to find exactly one segmentation in either T2w, T1w, or orig space but found: {} {} {}, respectively (at least 1 needs to have 1).'.format(len(t2_seg_files), len(t1_seg_files), len(space_seg_files)))
 
         #Iterate through processing configurations defined in the input json file
         for temp_sequence in master_settings.keys():
