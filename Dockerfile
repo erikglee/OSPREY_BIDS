@@ -55,7 +55,7 @@ RUN rm /mcr_path/mcr.zip
 
 #Download the unique code for this project
 RUN mkdir /code
-RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v1.2.zip -O /code/code.zip
+RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v2.1.zip -O /code/code.zip
 RUN cd /code && unzip -q ./code.zip
 RUN mkdir /python_code
 COPY ./code/run.py /python_code
@@ -82,4 +82,4 @@ RUN chmod 555 -R /mcr_path /code /python_code /HBCD_basissets
 ENV PATH="${PATH}:/python_code"
 RUN pipeline_name=osprey && cp /python_code/run.py /python_code/$pipeline_name
 
-ENTRYPOINT ["run.py"]
+ENTRYPOINT ["osprey"]
