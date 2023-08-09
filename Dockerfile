@@ -37,6 +37,7 @@ RUN apt-get update && \
 #RUN apt-get install -y python3
 #RUN apt-get install -y python3-dev
 #RUN python3 -m pip install python-dev-tools
+RUN python3 -m pip install --upgrade pip ##THIS IS NEW SO IF IT DOESNT WORK GET RID OF IT
 RUN python3 -m pip install numpy==1.19.2
 RUN python3 -m pip install scipy==1.8.0
 RUN python3 -m pip install nibabel==3.2.2
