@@ -73,7 +73,7 @@ RUN rm /HBCD_basissets/OSPREY_HBCD_BASISSETS.zip
 #Export paths (make sure LD_LIBRARY_PATH is set to the correct version)
 ENV BASIS_SETS_PATH=/HBCD_basissets
 ENV MCR_PATH=/mcr_path/v912
-ENV EXECUTABLE_PATH=/code/HBCD/run_compiled.sh
+ENV EXECUTABLE_PATH=/code/run_compiled.sh
 ENV LD_LIBRARY_PATH ="${LD_LIBRARY_PATH}:/mcr_path/v912/runtime/glnxa64:/mcr_path/v912/bin/glnxa64:/mcr_path/v912/sys/os/glnxa64:/mcr_path/v912/extern/bin/glnxa64"
 
 #Set permissions
