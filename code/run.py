@@ -21,6 +21,7 @@ parser.add_argument('--participant_label', '--participant-label', help="The name
 parser.add_argument('--segmentation_dir', '--segmentation-dir', help="The path to the folder where segmentations are stored (this is the same for all subjects)", type=str)
 parser.add_argument('--session_id', '--session-id', help="OPTIONAL: the name of a specific session to be processed (i.e. ses-01)", type=str)
 parser.add_argument('--localizer_registration', '--localizer-registration', help="OPTIONAL: Use localizer to register anatomical images to MRS scan. Also requires the use of --segmentation_dir argument", action='store_true')
+parser.add_argument('--localizer_search_term', '--localizer-search-term', help="OPTIONAL: The search term to use to find localizer images (i.e. *localizer*)", type=str, default='*localizer*.nii*')
 args = parser.parse_args()
 
 compiled_executable_path = os.getenv("EXECUTABLE_PATH")
@@ -399,7 +400,7 @@ for temp_participant in participants:
 
             #Grab all localizer scans within the current session and organize them into groups based on SeriesNumber
             if use_localizer:
-                localizer_imgs = glob.glob(os.path.join(session_path, 'anat/*localizer*.nii*'))
+                localizer_imgs = glob.glob(os.path.join(session_path, 'anat/{}'.format(args.localizer_search_term)))
                 if len(localizer_imgs) == 0:
                     print('No localizer images found for ' + session_path + ', skipping processing for current session.')
                     continue
