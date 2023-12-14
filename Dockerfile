@@ -50,25 +50,27 @@ RUN python3 -m pip install matplotlib==3.5.1
 #of MCR, install it, zip it, and upload the new path to a public bucket
 #on S3
 RUN mkdir /mcr_path
-RUN wget https://s3.msi.umn.edu/leex6144-public/v912.zip -O /mcr_path/mcr.zip
-RUN cd /mcr_path && unzip -q ./mcr.zip
-RUN rm /mcr_path/mcr.zip
+RUN wget https://s3.msi.umn.edu/leex6144-public/v912.zip -O /mcr_path/mcr.zip \
+    && cd /mcr_path && unzip -q ./mcr.zip \
+    && rm /mcr_path/mcr.zip
 
 #Download the unique code for this project
 RUN mkdir /code
-RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v2.2.0.zip -O /code/code.zip
-RUN cd /code && unzip -q ./code.zip
+RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v2.2.0.zip -O /code/code.zip \
+    && cd /code \
+    && unzip -q ./code.zip \
+    && rm /code/code.zip
 RUN mkdir /python_code
 COPY ./code/run.py /python_code
 COPY ./code/localizer_alignment.py /python_code 
 COPY hbcd_pilot_config.json /python_code
-RUN rm /code/code.zip
 
 #Download the basis sets
 RUN mkdir /HBCD_basissets
-RUN wget https://s3.msi.umn.edu/leex6144-public/OSPREY_HBCD_BASISSETS.zip -O /HBCD_basissets/OSPREY_HBCD_BASISSETS.zip
-RUN cd /HBCD_basissets && unzip -q ./OSPREY_HBCD_BASISSETS.zip
-RUN rm /HBCD_basissets/OSPREY_HBCD_BASISSETS.zip
+RUN wget https://s3.msi.umn.edu/leex6144-public/OSPREY_HBCD_BASISSETS.zip -O /HBCD_basissets/OSPREY_HBCD_BASISSETS.zip \
+    && cd /HBCD_basissets \
+    && unzip -q ./OSPREY_HBCD_BASISSETS.zip \
+    && rm /HBCD_basissets/OSPREY_HBCD_BASISSETS.zip
 
 #Export paths (make sure LD_LIBRARY_PATH is set to the correct version)
 ENV BASIS_SETS_PATH=/HBCD_basissets

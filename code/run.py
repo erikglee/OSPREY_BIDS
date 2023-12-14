@@ -3,13 +3,6 @@ import glob, argparse, os, json
 import numpy as np
 from localizer_alignment import localizer_alignment_anat_update_osprey
 
-#To change
-#participant label vs sub - done
-#run on all participants - done
-#take analysis level - done
-#return the boutiques descriptor?
-#execution.json?
-
 #Configure the commands that can be fed to the command line
 parser = argparse.ArgumentParser()
 parser.add_argument("bids_dir", help="The path to the BIDS directory for your study (this is the same for all subjects)", type=str)
@@ -22,6 +15,8 @@ parser.add_argument('--segmentation_dir', '--segmentation-dir', help="The path t
 parser.add_argument('--session_id', '--session-id', help="OPTIONAL: the name of a specific session to be processed (i.e. ses-01)", type=str)
 parser.add_argument('--localizer_registration', '--localizer-registration', help="OPTIONAL: Use localizer to register anatomical images to MRS scan. Also requires the use of --segmentation_dir argument", action='store_true')
 parser.add_argument('--localizer_search_term', '--localizer-search-term', help="OPTIONAL: The search term to use to find localizer images (i.e. *localizer*)", type=str, default='*localizer*.nii*')
+parser.add_argument('--preferred_anat_modality', '--preferred-anat-modality', help="OPTIONAL: The preferred modality to use for anatomical images (i.e. T1w or T2w)", type=str, default='T1w')
+parser.add_argument('--terms_not_allowed_in_anat', nargs='+', help='One or more terms (seperated by spaces) that are not allowed in the file name of high-res anatomical reference images. Useful for getting rid of localizer images that can be confused for high-res anatomical scans. example - "--terms_not_allowed_in_anat mrs ax coronal"', required=False)
 args = parser.parse_args()
 
 compiled_executable_path = os.getenv("EXECUTABLE_PATH")
@@ -48,6 +43,9 @@ if analysis_level != 'participant':
 json_settings = args.json_settings
 if os.path.isabs(json_settings) == False:
 	json_settings = os.path.join(cwd, json_settings)
+
+if args.preferred_anat_modality not in ['T1w', 'T2w']:
+    raise ValueError('Error: preferred_anat_modality must be T1w or T2w, but program received: ' + args.preferred_anat_modality)
 
 
 #Set session label
@@ -107,7 +105,7 @@ def run_processing(settings_dict, mrs_files_dict, anat_files_dict, derivs_folder
     if type(localizers) == type(None):
         pass
     else:
-        registration_output_foler = os.path.join(output_folder, 'pre_osprey_localizer_reg')
+        registration_output_foler = os.path.join(output_folder, 'PreOspreyLocalizerReg')
         anat_files_dict = localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_foler, localizers)
         
     #Update dictionary with settings for osprey
@@ -173,7 +171,7 @@ def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo):
             mrs_series_numbers.append(nifti_path_to_json_dict(mrs_files_combo[mrs_file_req])['SeriesNumber'])
             series_found = 1
         except:
-            print('Warning: SeriesNumber field not found associated with MRS file {}, assuming that the last localizer series should be used in registration.'.format(mrs_files_combo[mrs_file_req]))
+            print('Warning: SeriesNumber field not found associated with MRS file {}, assuming that the last localizer series should be used in registration.\n'.format(mrs_files_combo[mrs_file_req]))
 
     for temp_loc in localizer_pairs_dict.keys():
         localizer_series_numbers.append(temp_loc)
@@ -355,35 +353,103 @@ for temp_participant in participants:
         #If there is no session structure, this will go to the subject path
         session_path = os.path.join(subject_path, temp_session)
 
-        #Grab T1w file
+        #Grab T1w/T2w file, but only consider files that dont have terms included
+        #in args.terms_not_allowed_in_anat
         anats_dict = {}
-        anats = glob.glob(os.path.join(session_path,'anat/*T1w.ni*'))
-        if len(anats) == 0:
-            print('No T1w image found for ' + session_path + ', skipping processing for current session.')
+        t1w_anats_tentative = glob.glob(os.path.join(session_path,'anat/*T1w.ni*'))
+        t1w_anats = []
+        for temp_t1w in t1w_anats_tentative:
+            if args.terms_not_allowed_in_anat:
+                if any(x in temp_t1w.split('/')[-1] for x in args.terms_not_allowed_in_anat):
+                    pass
+                else:
+                    t1w_anats.append(temp_t1w)
+            else:
+                t1w_anats.append(temp_t1w)
+
+        t2w_anats_tentative = glob.glob(os.path.join(session_path,'anat/*T2w.ni*'))
+        t2w_anats = []
+        for temp_t2w in t2w_anats_tentative:
+            if args.terms_not_allowed_in_anat:
+                if any(x in temp_t2w.split('/')[-1] for x in args.terms_not_allowed_in_anat):
+                    pass
+                else:
+                    t2w_anats.append(temp_t2w)
+            else:
+                t2w_anats.append(temp_t2w)
+
+        
+        print('Preferred anatomical modality is: ' + args.preferred_anat_modality)
+        if (len(t1w_anats) + len(t2w_anats)) == 0:
+            print('No T1w or T2w image found for ' + session_path + ', skipping processing for current session.\n')
             continue
-        elif len(anats) == 1:
-            anats_dict['files_nii'] = anats
+
+        #If T1w is the preferred anatomical reference modality
+        elif args.preferred_anat_modality == 'T1w':
+            if len(t1w_anats) == 1:
+                anats_dict['files_nii'] = t1w_anats
+            elif len(t1w_anats) > 1:
+                raise ValueError('Error: more than 1 T1w image found for ' + session_path + ', processing is not designed to handle use case where multiple T1s are present.')
+            elif len(t2w_anats) == 1:
+                anats_dict['files_nii'] = t2w_anats
+            elif len(t2w_anats) > 1:
+                raise ValueError('Error: more than 1 T2w image found for ' + session_path + ', processing is not designed to handle use case where multiple T2s are present.')
+            else:
+                print('No T1w and T2w image found for ' + session_path + ', skipping processing for current session.')
+        
+        #If T2w is the preferred anatomical reference modality
         else:
-            raise ValueError('Error: more than 1 T1w image found for ' + session_path + ', processing is not designed to handle use case where multiple T1s are present.')
+            if len(t2w_anats) == 1:
+                anats_dict['files_nii'] = t2w_anats
+            elif len(t2w_anats) > 1:
+                raise ValueError('Error: more than 1 T2w image found for ' + session_path + ', processing is not designed to handle use case where multiple T2s are present.')
+            elif len(t1w_anats) == 1:
+                anats_dict['files_nii'] = t1w_anats
+            elif len(t1w_anats) > 1:
+                raise ValueError('Error: more than 1 T1w image found for ' + session_path + ', processing is not designed to handle use case where multiple T1s are present.')
+            else:
+                print('No T1w and T2w image found for ' + session_path + ', skipping processing for current session.')
 
         #Grab segmentation
         if isinstance(segmentation_dir, type(None)) == False:
             
             #First look for CABINET output in T2 space
-            t2_seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-T2w_desc-aseg_dseg.nii.gz')
-            t2_seg_files = glob.glob(t2_seg_path_template)
-            t1_seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-T1w_desc-aseg_dseg.nii.gz')
-            t1_seg_files = glob.glob(t1_seg_path_template)
-            space_seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-orig_desc-aseg_dseg.nii.gz')
-            space_seg_files = glob.glob(space_seg_path_template)
-            if len(t2_seg_files) == 1:
-                anats_dict['files_seg'] = [t2_seg_files]
-            elif len(t1_seg_files) == 1:
-                anats_dict['files_seg'] = [t1_seg_files]
-            elif len(space_seg_files) == 1:
-                anats_dict['files_seg'] = [space_seg_files]
+
+            if 'T2w.nii' in anats_dict['files_nii'][0]:
+                chosen_modality = 'T2w'
+            elif 'T1w.nii' in anats_dict['files_nii'][0]:
+                chosen_modality = 'T1w'
             else:
-                raise ValueError('Error: expected to find exactly one segmentation in either T2w, T1w, or orig space but found: {} {} {}, respectively (at least 1 needs to have 1).'.format(len(t2_seg_files), len(t1_seg_files), len(space_seg_files)))
+                raise ValueError('Error: expected to find either T1w or T2w in anatomical file name but found neither. ({})'.format(anats_dict['files_nii'][0]))
+
+            if chosen_modality == 'T2w':
+                t2_seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-T2w_desc-aseg_dseg.nii.gz')
+                t2_seg_files = glob.glob(t2_seg_path_template)
+                if len(t2_seg_files) == 1:
+                    anats_dict['files_seg'] = [t2_seg_files]
+
+            if chosen_modality == 'T1w':
+                t1_seg_path_template = os.path.join(segmentation_dir, temp_participant, temp_session, 'anat', '*_space-T1w_desc-aseg_dseg.nii.gz')
+                t1_seg_files = glob.glob(t1_seg_path_template)
+                if len(t1_seg_files) == 1:
+                    anats_dict['files_seg'] = [t1_seg_files]
+
+            if 'files_seg' not in anats_dict.keys():
+                raise ValueError('Error: segmentation dir ({}) was provided, but no segmentation was found for subject {} and session {} in either T1w or T2w space.'.format(segmentation_dir, temp_participant, temp_session))
+            
+            possible_json_file = anats_dict['files_seg'][0][0].split('.nii')[0] + '.json'
+            if os.path.exists(possible_json_file):
+                with open(possible_json_file, 'r') as f:
+                    json_dict = json.loads(f.read())
+                if 'SpatialReference' in json_dict.keys():
+                    if anats_dict['files_nii'][0].split('/')[-1] not in json_dict['SpatialReference']:
+                        raise ValueError('Error: segmentation file found for subject {} and session {}, but the SpatialReference field in the json sidecar does not point to the anatomical image chosen for processing.\n\n Segmentation spatial reference: {}\n Reference chosen for current processing {}\n Please check your data.'.format(temp_participant, temp_session, json_dict['SpatialReference'].split('/')[-1], anats_dict['files_nii'][0].split('/')[-1]))
+                    else:
+                        print('Same spatial reference found for segmentation and anatomical image, proceeding with processing.\n\n Segmentation spatial reference: {}\n Reference chosen for current processing {}\n'.format(json_dict['SpatialReference'].split('/')[-1], anats_dict['files_nii'][0].split('/')[-1]))
+                else:
+                    print('No SpatialReference field found in segmentation json sidecar, assuming that segmentation is in the same space as the anatomical image.')
+            else:
+                print('No json sidecar found for segmentation, assuming that segmentation is in the same space as the anatomical image.')
 
         #Iterate through processing configurations defined in the input json file
         for temp_sequence in master_settings.keys():
@@ -400,6 +466,7 @@ for temp_participant in participants:
                 print("Found " + str(len(prereq_dict[temp_prereq])) + " " + temp_prereq)
                 num_files.append(len(prereq_dict[temp_prereq]))
                 all_files += prereq_dict[temp_prereq] 
+            print('')
 
             #Grab all localizer scans within the current session and organize them into groups based on SeriesNumber
             if use_localizer:
@@ -433,7 +500,6 @@ for temp_participant in participants:
                     best_localizers = None
 
                 #Now need to update run_processing to accept the localizer pair...
-
                 run_processing(temp_sequence_dict, temp_combo, anats_dict.copy(), output_dir,
                        temp_participant, temp_session, temp_sequence, index,
                        compiled_executable_path, mcr_path, localizers = best_localizers)
