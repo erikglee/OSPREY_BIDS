@@ -126,7 +126,10 @@ def run_processing(settings_dict, mrs_files_dict, anat_files_dict, derivs_folder
     
     #Run osprey
     print('Running: ' + compiled_executable_path + ' ' + mcr_path + ' ' + json_output_path)
-    os.system(compiled_executable_path + ' ' + mcr_path + ' ' + json_output_path)
+    output_status = os.system(compiled_executable_path + ' ' + mcr_path + ' ' + json_output_path)
+    output_status = os.WEXITSTATUS(output_status)
+    if output_status > 0:
+        raise ValueError('Error: Matlab command line returned non-zero exit status ({})'.format(output_status))
     
     return
 
