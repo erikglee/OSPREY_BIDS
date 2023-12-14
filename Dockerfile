@@ -28,16 +28,7 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/
 
 #Install relavent python packages
-#RUN apt update 
-#RUN apt install software-properties-common -y
-#RUN add-apt-repository ppa:deadsnakes/ppa -y
-#RUN apt update 
-#ENV DEBIAN_FRONTEND=noninteractive
-#RUN apt install python3.9 -y
-#RUN apt-get install -y python3
-#RUN apt-get install -y python3-dev
-#RUN python3 -m pip install python-dev-tools
-RUN python3 -m pip install --upgrade pip ##THIS IS NEW SO IF IT DOESNT WORK GET RID OF IT
+RUN python3 -m pip install --upgrade pip 
 RUN python3 -m pip install numpy==1.19.5 #used to be 1.19.2
 RUN python3 -m pip install scipy==1.8.0
 RUN python3 -m pip install nibabel==3.2.2
@@ -56,7 +47,7 @@ RUN wget https://s3.msi.umn.edu/leex6144-public/v912.zip -O /mcr_path/mcr.zip \
 
 #Download the unique code for this project
 RUN mkdir /code
-RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v2.2.0.zip -O /code/code.zip \
+RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v2.3.0.zip -O /code/code.zip \
     && cd /code \
     && unzip -q ./code.zip \
     && rm /code/code.zip
