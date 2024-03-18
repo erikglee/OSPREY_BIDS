@@ -17,6 +17,7 @@ parser.add_argument('--localizer_registration', '--localizer-registration', help
 parser.add_argument('--localizer_search_term', '--localizer-search-term', help="OPTIONAL: The search term to use to find localizer images (i.e. *localizer*)", type=str, default='*localizer*.nii*')
 parser.add_argument('--preferred_anat_modality', '--preferred-anat-modality', help="OPTIONAL: The preferred modality to use for anatomical images (i.e. T1w or T2w)", type=str, default='T1w')
 parser.add_argument('--terms_not_allowed_in_anat', nargs='+', help='One or more terms (seperated by spaces) that are not allowed in the file name of high-res anatomical reference images. Useful for getting rid of localizer images that can be confused for high-res anatomical scans. example - "--terms_not_allowed_in_anat mrs ax coronal"', required=False)
+parser.add_argument('--require_same_mrs_localizer_suid', help='If activated, OSPREY will only try to match MRS scans with localizers if the StudyInstanceUID field in the BIDS JSON matches across the localizer/mrs images.', action='store_true')
 args = parser.parse_args()
 
 compiled_executable_path = os.getenv("EXECUTABLE_PATH")
@@ -47,6 +48,10 @@ if os.path.isabs(json_settings) == False:
 if args.preferred_anat_modality not in ['T1w', 'T2w']:
     raise ValueError('Error: preferred_anat_modality must be T1w or T2w, but program received: ' + args.preferred_anat_modality)
 
+if args.require_same_mrs_localizer_suid:
+    require_suid = True
+else:
+    require_suid = False
 
 #Set session label
 if args.session_id:
@@ -147,7 +152,7 @@ def nifti_path_to_json_dict(nifti_path):
             
     return json_dict
 
-def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo):
+def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo, required_suid = None):
     '''Utility that picks which localizer to use with MRS images
     
     This function takes a pair of dictionaries representing localizer and MRS images
@@ -159,9 +164,14 @@ def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo):
     and the values are the paths to the images
     mrs_files_combo: dictionary of MRS images, where the values are the paths to the images
 
+    required_suid: None (default, or string). If string, the function will only return localizer pairs that have the same StudyInstanceUID as the MRS images
+
     returns: list of paths to localizer images to use for registration
     
     '''
+
+
+    #STILL NEED TO IMPLEMENT CHECKING LOGIC TO MAKE SURE SUID MATCHES
 
     mrs_series_numbers = []
     localizer_series_numbers = []
@@ -173,14 +183,29 @@ def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo):
         except:
             print('Warning: SeriesNumber field not found associated with MRS file {}, assuming that the last localizer series should be used in registration.\n'.format(mrs_files_combo[mrs_file_req]))
 
+    study_instance_uids = []
     for temp_loc in localizer_pairs_dict.keys():
         localizer_series_numbers.append(temp_loc)
+        study_instance_uids.append(nifti_path_to_json_dict(localizer_pairs_dict[temp_loc][0])['StudyInstanceUID'])
 
 
     mrs_series_numbers.sort()
-    localizer_series_numbers.sort()
     if series_found == 0:
-        return localizer_pairs_dict[localizer_series_numbers[-1]]
+        best_localizer = -1
+        localizer_found = False
+        if type(required_suid) == type(None):
+            for temp_localizer_series in localizer_series_numbers:
+                if temp_localizer_series > best_localizer:
+                    best_localizer = temp_localizer_series
+            return localizer_pairs_dict[best_localizer]
+        else:
+            for i, temp_localizer_series in enumerate(localizer_series_numbers):
+                if (temp_localizer_series > best_localizer) and (required_suid == study_instance_uids[i]):
+                    localizer_found = True
+                    best_localizer = temp_localizer_series
+            if localizer_found == False:
+                raise NameError('Error: no localzier found with same StudyInstanceUID as MRS images. Please check your data. Localizers: {}'.format(localizer_pairs_dict))
+            return localizer_pairs_dict[best_localizer]
         
     else:
         best_localizer = None
@@ -489,13 +514,29 @@ for temp_participant in participants:
 
 
             file_combos = find_acceptable_file_combos(prereq_dict, subject_path)
+            print('File combos: {}'.format(file_combos))
             index = 0
             for temp_combo in file_combos:
 
+                if require_suid:
+                    suid_list = []
+                    for temp_mrs_key in temp_combo.keys():
+                        temp_mrs_json = nifti_path_to_json_dict(temp_combo[temp_mrs_key][0])
+                        try:
+                            suid_list.append(temp_mrs_json['StudyInstanceUID'])
+                        except:
+                            raise ValueError('Error: StudyInstanceUID field not found in BIDS JSONs for MRS images in the current combo. If you still want to process turn argument --require_same_mrs_localizer_suid off')
+                    if len(set(suid_list)) > 1:
+                        raise ValueError('Error: StudyInstanceUID field in BIDS JSONs for MRS images in the current combo do not match, skipping processing for current combo. File combo: {}'.format(temp_combo))
+                    else:
+                        current_suid = suid_list[0]
+                        print('   Current SUID: {}'.format(current_suid))
+                else:
+                    current_suid = None
 
                 if use_localizer:
                     #Find the best set of localizers for the current MRS images (or use the last localizer)
-                    best_localizers = find_closest_localizer_pair(localizer_groups_dict, temp_combo)
+                    best_localizers = find_closest_localizer_pair(localizer_groups_dict, temp_combo, required_suid = current_suid)
                 else:
                     best_localizers = None
 
