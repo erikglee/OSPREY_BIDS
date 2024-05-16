@@ -171,8 +171,6 @@ def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo, required_
     '''
 
 
-    #STILL NEED TO IMPLEMENT CHECKING LOGIC TO MAKE SURE SUID MATCHES
-
     mrs_series_numbers = []
     localizer_series_numbers = []
     series_found = 0
@@ -188,7 +186,6 @@ def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo, required_
         localizer_series_numbers.append(temp_loc)
         study_instance_uids.append(nifti_path_to_json_dict(localizer_pairs_dict[temp_loc][0])['StudyInstanceUID'])
 
-
     mrs_series_numbers.sort()
     if series_found == 0:
         best_localizer = -1
@@ -199,8 +196,10 @@ def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo, required_
                     best_localizer = temp_localizer_series
             return localizer_pairs_dict[best_localizer]
         else:
+            if required_suid == "None":
+                print('Warning: MRS StudyInstanceUID is set to string "None". Because of this, processing will assume the MRS acquisition and localizer in a given BIDS session directory come from the same scanning session.\n')
             for i, temp_localizer_series in enumerate(localizer_series_numbers):
-                if (temp_localizer_series > best_localizer) and (required_suid == study_instance_uids[i]):
+                if (temp_localizer_series > best_localizer) and ((required_suid == study_instance_uids[i]) or (required_suid == "None")):
                     localizer_found = True
                     best_localizer = temp_localizer_series
             if localizer_found == False:
@@ -210,14 +209,27 @@ def find_closest_localizer_pair(localizer_pairs_dict, mrs_files_combo, required_
     else:
         best_localizer = None
         localizer_found = False
-        for temp_localizer_series in localizer_series_numbers:
-            if temp_localizer_series < mrs_series_numbers[0]:
-                localizer_found = True
-                best_localizer = localizer_pairs_dict[temp_localizer_series]
-        if localizer_found == False:
-            raise ValueError('Error: Could not find a localizer series that was acquired before the MRS series. Please check your data.')
+        print('Warning - script is currently assuming all localizers from a given BIDS imaging session come from the same scanning session.')
+        if type(required_suid) == type(None):
+            for temp_localizer_series in localizer_series_numbers:
+                if temp_localizer_series < mrs_series_numbers[0]:
+                    localizer_found = True
+                    best_localizer = localizer_pairs_dict[temp_localizer_series]
+            if localizer_found == False:
+                raise ValueError('Error: Could not find a localizer series that was acquired before the MRS series. Please check your data.')
+            else:
+                return best_localizer
         else:
-            return best_localizer
+            if required_suid == "None":
+                print('Warning: MRS StudyInstanceUID is set to string "None". Because of this, processing will assume the MRS acquisition and localizer in a given BIDS session directory come from the same scanning session.\n')
+            for i, temp_localizer_series in enumerate(localizer_series_numbers):
+                if (temp_localizer_series < mrs_series_numbers[0]) and ((required_suid == study_instance_uids[i]) or (required_suid == "None")):
+                    localizer_found = True
+                    best_localizer = localizer_pairs_dict[temp_localizer_series]
+            if localizer_found == False:
+                raise ValueError('Error: Could not find a localizer series that was acquired before the MRS series. Please check your data.')
+            else:
+                return best_localizer
 
     return
 
