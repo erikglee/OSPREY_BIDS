@@ -3,44 +3,31 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Usage
-=====
-
-The design of the application is meant to follow general 
-`BIDS-App guidelines <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
-For more details on general usage principles of BIDS-Apps, see the linked documentation.
-
-As described in the installation section, this tool is meant to be
-interacted with in containerized form. The example below shows the
-general layout for how you may want to interact with the container
-to conduct processing if you have the container downloaded as a
-singularity image: ::
+Expected Inputs
+===============
 
 
-        container_path=/path/to/container.sif
-        bids_dir=/path/to/bids
-        output_dir=/path/to/output
-        bibsnet_dir=/path/to/bibsnet
-        settings_file=/path/to/settings.json
-        singularity run -B $bids_dir:/bids \
-         -B $output_dir:/output \
-         -B $bibsnet_dir:/bibsnet \
-         -B $settings_file:/settings_file/file.json \
-         $container_path /bids /output participant /settings_file/file.json
+This tool expects at minimum one anatomical reference image
+and one (or more) images that can be used for MRS analyses.
+The anatomical reference image is expected to be under an anat
+folder as follows: ::
 
-To see more specific information about how this tool expects
-the inputs to be formatted (i.e. file naming conventions), 
-see the inputs formatting page.
+   bids_dir/sub-<label>[/ses-<label>]/anat/*T1w.nii.gz
+   bids_dir/sub-<label>[/ses-<label>]/anat/*T2w.nii.gz
+
+In this example, both a T1w and T2w image are present. Only one of the
+two images will be selected for processing. Which image is selected
+will depend on whether --preferred_anat_modality has a value of T1w or T2w.
+For whichever preferred anat modality is present, there must be exactly one
+anatomcial image for the application to choose from. If you also have a
+localizer in the anat directory with a T1w/T2w ending, you can utilize
+the --terms_not_allowed_in_anat flag to tell the program about what character
+sequences can be used to ensure localizer (or other) scans aren't mistakenly
+identified as high resolution anatomical images.
 
 
-Command-Line Arguments
-----------------------
-.. argparse::
-   :ref: python_code.run.build_parser
-   :prog: osprey
-   :nodefault:
-   :nodefaultconst:
+The magnetic resonance spectroscopy scans are expected to be in nifti format under
+an "mrs" folder as seen in the following example: ::
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   bids_dir/sub-<label>[/ses-<label>]/anat/*T1w.nii.gz
+   bids_dir/sub-<label>[/ses-<label>]/anat/*T2w.nii.gz
