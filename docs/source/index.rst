@@ -33,4 +33,5 @@ The utility of this application is largely three-fold:
    :caption: Contents:
 
    installation
+   usage
 
