@@ -38,6 +38,7 @@ Command-Line Arguments
 .. argparse::
    :ref: python_code.run.build_parser
    :prog: osprey
+   :nodefault:
    :nodefaultconst:
 
 .. toctree::
