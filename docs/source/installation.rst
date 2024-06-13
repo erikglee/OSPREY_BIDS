@@ -35,3 +35,7 @@ In this case it is a series of "bind" commands that will give singularity
 access to the necessary directories. This is followed by the path to the
 container and then the arguments for the primary script to be ran by the
 container.
+
+Note: If you are not interested in interacting with this particular interface
+to OSPREY, which includes BIDS and containerized functionality, consider using
+OSPREY directly in Matlab following the instructions found `here <https://github.com/schorschinho/osprey>`_.
