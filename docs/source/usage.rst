@@ -36,8 +36,8 @@ see the inputs formatting page.
 Command-Line Arguments
 ----------------------
 .. argparse::
-   :ref: python_code.run
-   :prog: build_parser
+   :ref: python_code.run.build_parser
+   :prog: osprey
    :nodefault:
    :nodefaultconst:
 
