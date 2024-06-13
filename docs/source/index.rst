@@ -12,16 +12,16 @@ as a BIDS extension to the `OSPREY <https://github.com/schorschinho/osprey>`_ pi
 
 The utility of this application is largely three-fold:
 1. To make the core functionality of OSPREY available via Docker/Singularity
-containers so that users do not need to install any dependencies or have a Matlab
-license before processing.
+   containers so that users do not need to install any dependencies or have a Matlab
+   license before processing.
 2. Extending OPSREY to have BIDS App functionality. OSPREY_BIDS takes as input a BIDS
-dataset, automates processing by assuming the input follows BIDS guidelines, and structures
-processing outputs using general BIDS derivatives principles.
+   dataset, automates processing by assuming the input follows BIDS guidelines, and structures
+   processing outputs using general BIDS derivatives principles.
 3. Registration. OSPREY_BIDS allows for registering high anatomical T1w/T2w images
-to a localizer image collected immediately before/after the MRS acquisition. This
-step ensures that even if there is movement between the high-res anatomical and 
-MRS localizer that (a) segmentation-based tissue correction can still occur
-and (b) the MRS voxel positioning can be displayed on a high-res underlay.
+   to a localizer image collected immediately before/after the MRS acquisition. This
+   step ensures that even if there is movement between the high-res anatomical and 
+   MRS localizer that (a) segmentation-based tissue correction can still occur
+   and (b) the MRS voxel positioning can be displayed on a high-res underlay.
 
 
 
