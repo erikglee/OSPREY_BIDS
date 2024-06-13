@@ -16,7 +16,7 @@ Where version_num denotes the specific version of the container. All available
 versions of the container can be found `here <https://hub.docker.com/r/dcanumn/osprey/tags>`_.
 
 After downloading the container, singularity is the only other dependency needed
-for processing. The full usage details can be seen under the :ref:`usage` section, but
+for processing. The full usage details can be seen under the usage section, but
 the basic command to run the container is as follows: ::
     
         container_path=/path/to/container.sif
@@ -38,4 +38,4 @@ container.
 
 Note: If you are not interested in interacting with this particular interface
 to OSPREY, which includes BIDS and containerized functionality, consider using
-OSPREY directly in Matlab following the instructions found `here <https://github.com/schorschinho/osprey>`_.
+OSPREY directly in Matlab following the instructions found `on the OSPREY github <https://github.com/schorschinho/osprey>`_.
