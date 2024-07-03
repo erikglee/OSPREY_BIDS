@@ -29,5 +29,5 @@ identified as high resolution anatomical images.
 The magnetic resonance spectroscopy scans are expected to be in nifti format under
 an "mrs" folder as seen in the following example: ::
 
-   bids_dir/sub-<label>[/ses-<label>]/anat/*T1w.nii.gz
-   bids_dir/sub-<label>[/ses-<label>]/anat/*T2w.nii.gz
+   bids_dir/suewrtwerwerewr
+   bids_dir/swedwerewrewrewr

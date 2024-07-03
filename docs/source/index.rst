@@ -6,6 +6,9 @@
 Welcome to OSPREY_BIDS's documentation!
 =======================================
 
+DOCUMENTATION IS STILL A WORK IN PROGRESS. ANY DETAILS FOUND ON THESE PAGES
+SHOULD BE CONSIDERED TEMPORARY/INCOMPLETE UNTIL THIS DISCLAIMER IS REMOVED.
+
 This tool is used in the Healthy Brain and Child Development (HBCD) study
 for processing magnetic resonance spectroscopy (MRS) data. The tool acts 
 as a BIDS extension to the `OSPREY <https://github.com/schorschinho/osprey>`_ pipeline.
@@ -34,4 +37,5 @@ The utility of this application is largely three-fold:
 
    installation
    usage
+   expected_inputs
 
