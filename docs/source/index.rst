@@ -31,6 +31,8 @@ The utility of this application is largely three-fold:
 
 
 
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -38,4 +40,5 @@ The utility of this application is largely three-fold:
    installation
    usage
    expected_inputs
+   processing_pipeline_details
 
