@@ -66,4 +66,21 @@ for processing.
       }
    }
 
+With the configuration file listed above, if we had the following two
+files in the BIDS directory, they would be selected for "HERCULES" processing: ::
+
+   bids_dir/sub-<label>[/ses-<label>]/mrs/sub-<label>[_ses-<label>]_acq-hercules[_run-<label>]_svs.nii.gz
+   bids_dir/sub-<label>[/ses-<label>]/mrs/sub-<label>[_ses-<label>]_acq-hercules[_run-<label>]_ref.nii.gz
+
+Further, if we had the following two files in the BIDS directory, they would
+be sleected for "unedited" processing: ::
+
+   bids_dir/sub-<label>[/ses-<label>]/mrs/sub-<label>[_ses-<label>]_acq-shortTE[_run-<label>]_svs.nii.gz
+   bids_dir/sub-<label>[/ses-<label>]/mrs/sub-<label>[_ses-<label>]_acq-shortTE[_run-<label>]_ref.nii.gz
+
+In both cases, if only one of the two files was present then processing would 
+not occur for the configuration missing a file. However, as long as at least one
+of the two configurations has all prerequisite files, OSPREY processing will be
+attempted.
+
 
