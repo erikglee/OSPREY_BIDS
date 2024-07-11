@@ -6,6 +6,12 @@
 Expected Inputs
 ===============
 
+Required
+--------
+
+Anatomical
+~~~~~~~~~~
+
 
 This tool expects at minimum one anatomical reference image
 and one (or more) images that can be used for MRS analyses.
@@ -24,6 +30,9 @@ localizer in the anat directory with a T1w/T2w ending, you can utilize
 the --terms_not_allowed_in_anat flag to tell the program about what character
 sequences can be used to ensure localizer (or other) scans aren't mistakenly
 identified as high resolution anatomical images.
+
+JSON Configuration
+~~~~~~~~~~~~~~~~~~
 
 How OSPREY_BIDS is run, and the naming convention for magnetic resonance spectroscopy
 files will be determined through the json_settings file that is passed to OSPREY_BIDS
@@ -65,6 +74,10 @@ for processing.
             }
       }
    }
+
+
+MRS Files
+~~~~~~~~~
 
 With the configuration file listed above, if we had the following two
 files in the BIDS directory, they would be selected for "HERCULES" processing: ::
