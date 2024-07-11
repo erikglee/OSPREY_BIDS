@@ -84,3 +84,12 @@ which has contains a subset of information not covered here.
 11. Following the previous steps, the same procedure will be repeated for any other
     subjects and or sessions in the BIDS directory.
 
+
+From the steps above, the user should be aware that most of procedure above involve file
+manipulations and image registrations. These steps are how OSPREY_BIDS streamlines
+MRS processing to be BIDS compatible.
+
+However, you will notice that the above steps do not provide any details about how
+the collected MRS files are modeled for the purpose of generating metabolite estimates.
+All the workflows for that procedure are described in great detail at: 
+https://github.com/schorschinho/osprey.
