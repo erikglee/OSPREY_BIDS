@@ -157,3 +157,6 @@ on what type of metadata is available in the JSON sidecars.
   session, it will assume that these images have been collected simultaneously, and consider
   the image data for both images to be a point cloud that will then be used for registration
   with the high resolution anatomical image.
+
+If you want to utilize the --localizer_registration flag, you must also use
+the --segmentation_dir flag. 
