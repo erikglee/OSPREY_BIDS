@@ -25,9 +25,45 @@ the --terms_not_allowed_in_anat flag to tell the program about what character
 sequences can be used to ensure localizer (or other) scans aren't mistakenly
 identified as high resolution anatomical images.
 
+How OSPREY is run, and the naming convention for magnetic resonance spectroscopy
+files will be determined through the json_settings file that is passed to OSPREY
+as a positional argument. An example of this type of JSON can be seen in the
+codeblock later in this document.
 
-The magnetic resonance spectroscopy scans are expected to be in nifti format under
-an "mrs" folder as seen in the following example: ::
+As explained in the XXX section, the json file is a heirarchical dictionary. At
+the first level of the heirarchy, the keys describe one grouping of processing
+settings. For HBCD these two keys are "HERCULES" and "unedited". These are descriptive
+names provided by the user that should be related to the acquisition/processing
+details. Further, these names will be propogated to determine the names of the
+output folders created by OSPREY.
 
-   bids_dir/suewrtwerwerewr
-   bids_dir/swedwerewrewrewr
+Within each json file there will be a "prerequisites" section. This section can
+have two fields including "files" and "files_ref". Each of these fields then has
+an associated pattern that will be used with the python glob package to determine
+whether a given file in the mrs section of a BIDS dataset matches what is expected
+for processing.
+
+.. code-block:: json
+
+   {
+    "HERCULES": {
+        "seqType": "HERCULES",
+        "editTarget": ["GABA","GSH"],
+        "MM3coModel": "freeGauss",
+        "ECCmetab": "1",
+        "prerequisites": {
+            "files" : "*_acq-hercules_*svs.nii*",
+            "files_ref" : "*_acq-hercules_*ref.nii*"
+        }
+    },
+    "unedited": {
+        "seqType": "unedited",
+        "ECCmetab": "1",
+        "prerequisites": {
+            "files" : "*_acq-shortTE_*svs.nii*",
+            "files_ref" : "*_acq-shortTE_*ref.nii*"
+            }
+      }
+   }
+
+
