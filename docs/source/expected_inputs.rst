@@ -135,5 +135,25 @@ images at the following path: ::
    bids_dir/sub-<label>[/ses-<label>]/anat/[search_term]
 
 In the above example, search term is set by the --localizer_search_term flag and is
-*localizer*.nii. In HBCD, the --localizer_search_term value is *mrsLocAx*.nii*. If a given
-session directory has more than one localizer image then....
+*localizer*.nii* by default. In HBCD, the --localizer_search_term value is *mrsLocAx*.nii*. If a given
+session directory has more than one localizer image then the behavior of OSPREY will depend
+on what type of metadata is available in the JSON sidecars.
+
+- If the MRS data does not have an associated SeriesInstanceUID field in its JSON, then we
+  will assume that the last localizer (measured by SeriesInstanceUID) should be used for
+  registration purposes.
+- If the flag --require_same_mrs_localizer_suid is activated, both MRS JSONs and Localizer
+  JSONs will be checked for the StudyInstanceUID field. If this flag is activated, OSPREY
+  will ensure that only (MRS + localizer) files with matching StudyInstanceUID fields
+  will be used together. The exception to this is if the MRS file has the string value
+  "None" in the StudyInstanceUID field. If this is the case, then a warning will be printed
+  to the end user, but processing will still occur. The only reason why someone would use
+  this flag is if BIDS sessions within your study actually corresponds to multiple
+  distinct scanning sessions.
+- If both the MRS and Localizer JSONs have the SeriesInstanceUID field defined, then OSPREY
+  will try to identify the last localizer that was calculated prior to the MRS scan for
+  registration purposes.
+- If the selected Localizer shares a SeriesNumber with other Localizer images within the
+  session, it will assume that these images have been collected simultaneously, and consider
+  the image data for both images to be a point cloud that will then be used for registration
+  with the high resolution anatomical image.
