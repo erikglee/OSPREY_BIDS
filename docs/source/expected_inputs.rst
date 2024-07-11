@@ -84,10 +84,11 @@ of the two configurations has all prerequisite files, OSPREY_BIDS processing wil
 attempted.
 
 Optional Inputs
-===============
+----------------------
+
 
 Segmentation Directory
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 Beyond the required inputs above, there are two other inputs that can be provided.
 These inputs are always used in the Healthy Brain and Child Developement (HBCD) study,
@@ -120,7 +121,7 @@ If the "--segmentation_dir" flag is not provided, OSPREY will instead utilize SP
 to come up with estimates for grey matter, white matter, and cerebrospinal fluid.
 
 Localizer
----------
+~~~~~~~~~
 
 By default, OSPREY will make the assumption that the high resolution anatomical (and by extension any
 associated segmentations) are registered to the MRS voxels. If you expect this to not be the case for
