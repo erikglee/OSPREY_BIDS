@@ -32,10 +32,10 @@ the basic command to run the container is as follows: ::
 
 Where "singularity run" is followed by specific commands for singularity.
 In this case it is a series of "bind" commands that will give singularity
-access to the necessary directories. This is followed by the path to the
-container and then the arguments for the primary script to be ran by the
-container.
+access to the necessary directories for processing. This is followed by the path to the
+container. Last, the user specifies the arguments that are unique to the current application,
+such as input and output files, configuration files, and other processing settings.
 
 Note: If you are not interested in interacting with this particular interface
-to OSPREY, which includes BIDS and containerized functionality, consider using
+of OSPREY, which includes BIDS and containerized functionality, consider using
 OSPREY directly in Matlab following the instructions found `on the OSPREY github <https://github.com/schorschinho/osprey>`_.

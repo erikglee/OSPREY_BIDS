@@ -14,7 +14,7 @@ Anatomical
 
 
 This tool expects at minimum one anatomical reference image
-and one (or more) images that can be used for MRS analyses.
+and one (or more) MRS images that can be used for analyses.
 The anatomical reference image is expected to be under an anat
 folder as follows: ::
 
@@ -41,10 +41,10 @@ codeblock later in this document.
 
 As explained in the XXX section, the json file is a heirarchical dictionary. At
 the first level of the heirarchy, the keys describe one grouping of processing
-settings. For HBCD these two keys are "HERCULES" and "unedited". These are descriptive
-names provided by the user that should be related to the acquisition/processing
-details. Further, these names will be propogated to determine the names of the
-output folders created by OSPREY_BIDS.
+settings. For HBCD these two keys are "HERCULES" and "unedited". These
+names are provided by the user to describe the acquisition/processing
+details. Further, these names will be propogated to determine the
+output folder names created by OSPREY_BIDS processing.
 
 Within each json file there will be a "prerequisites" section. This section can
 have two fields including "files" and "files_ref". Each of these fields then has
@@ -86,7 +86,7 @@ files in the BIDS directory, they would be selected for "HERCULES" processing: :
    bids_dir/sub-<label>[/ses-<label>]/mrs/sub-<label>[_ses-<label>]_acq-hercules[_run-<label>]_ref.nii.gz
 
 Further, if we had the following two files in the BIDS directory, they would
-be sleected for "unedited" processing: ::
+be selected for "unedited" processing: ::
 
    bids_dir/sub-<label>[/ses-<label>]/mrs/sub-<label>[_ses-<label>]_acq-shortTE[_run-<label>]_svs.nii.gz
    bids_dir/sub-<label>[/ses-<label>]/mrs/sub-<label>[_ses-<label>]_acq-shortTE[_run-<label>]_ref.nii.gz
@@ -118,8 +118,8 @@ directory that has the following files for each subject and session to be proces
 
 Where <modality> is either T1w or T2w, and the nifti images have the same orientation and dimensions
 as a T1w or T2w image in the raw BIDS dataset. If the jsons listed above have a SpatialReference field,
-that field will be checked to ensure that the T1w (or T2w) image being used for processing has the same
-file name as what is listed in the SpatialReference field.
+that field will be checked to ensure the T1w or T2w file name (but not absolute path) used to generate
+the segmentation corresponds with what OSPREY_BIDS has already selected for processing.
 
 If these segmentation files are present, they will be used to correct for partial tissue effects
 within the MRS voxel. To avoid ambiguity in processing outputs, any processing that is attempted
@@ -128,7 +128,8 @@ during processing.
 
 The "aseg" nifti segmentation files listed above should have the same numeric coding as FreeSurfer
 "aseg" style images. OSPREY will then recode regions to be grey matter, white matter, or other. Voxels
-labeled as other will be assumed to be CSF during the partial volume correction procedure.
+labeled as other (which includes regions like ventricles, or unassigned voxels with a numeric value of
+0) will be assumed to be CSF during the partial volume correction procedure.
 
 If the "--segmentation_dir" flag is not provided, OSPREY will instead utilize SPM segmentation routines
 to come up with estimates for grey matter, white matter, and cerebrospinal fluid.
@@ -165,12 +166,12 @@ on what type of metadata is available in the JSON sidecars.
   this flag is if BIDS sessions within your study actually corresponds to multiple
   distinct scanning sessions.
 - If both the MRS and Localizer JSONs have the SeriesInstanceUID field defined, then OSPREY
-  will try to identify the last localizer that was calculated prior to the MRS scan for
+  will try to identify the last localizer that was acquired prior to the MRS scan for
   registration purposes.
 - If the selected Localizer shares a SeriesNumber with other Localizer images within the
   session, it will assume that these images have been collected simultaneously, and consider
-  the image data for both images to be a point cloud that will then be used for registration
-  with the high resolution anatomical image.
+  the image data for both images to be a point cloud. The combined points from all localizers
+  will then be used for registration with the high resolution anatomical image.
 
 If you want to utilize the --localizer_registration flag, you must also use
 the --segmentation_dir flag. 
