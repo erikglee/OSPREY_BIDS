@@ -1,0 +1,1 @@
+Please see the ReadTheDocs page for documentation: https://osprey-bids.readthedocs.io/en/latest/

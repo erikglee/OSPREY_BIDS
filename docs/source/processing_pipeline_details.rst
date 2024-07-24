@@ -14,7 +14,7 @@ and (c) a JSON file that describes how OSPREY should interact with the MRS image
 for processing purposes. 
 
 Beyond that, it is optional that the user also has (d) a FreeSurfer-like segmentation
-that is registered to (a), and (e) a localizer image that is registered to (b).
+that is registered to (a), and (e) a localizer image that is (intrinsically) registered to (b).
 
 In this section, we describe how OSPREY utilizes (a-e) to do processing. This section
 is not meant to describe how input files should be formatted, but rather how they are
@@ -40,7 +40,8 @@ which has contains a subset of information not covered here.
 4. Iterate through all the processing configurations specified in the configuration JSON
    file. Steps (1-3) are common to all processing configurations, but the following steps
    will be ran seperately for each configuration (i.e. such as HERCULES and unedited).
-5. Find all MRS files that match the naming pattern indicated from (4).
+5. Find all MRS files that match the naming pattern indicated in the current MRS 
+   processing configuration. which files get chosen depend on how (c) is configured.
 6. If localizer registration is being used, find all the localizers in the session.
 7. Identify pairs of MRS files and localizers that should be used with one another for
    processing.
@@ -66,7 +67,6 @@ which has contains a subset of information not covered here.
    high resolution anatomical image that are in the space of the localizer (which should by
    extension also be the same space as the MRS voxel).
    
-   
    If this step is taken, OSPREY will then use these new copies of the anatomical/segmentation
    images. Otherwise, the original anatomical image will be provided to OSPREY, along with the
    segmentation image (assuming --segmentation_dir has been specified).
@@ -90,6 +90,6 @@ manipulations and image registrations. These steps are how OSPREY_BIDS streamlin
 MRS processing to be BIDS compatible.
 
 However, you will notice that the above steps do not provide any details about how
-the collected MRS files are modeled for the purpose of generating metabolite estimates.
+the MRS data is manipulated and modeled for the purpose of generating metabolite estimates.
 All the workflows for that procedure are described in great detail at: 
 https://github.com/schorschinho/osprey.
