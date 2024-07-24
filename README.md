@@ -1,1 +1,1 @@
-Please see the ReadTheDocs page for documentation: https://osprey-bids.readthedocs.io/en/latest/
+Please see the ReadTheDocs page for documentation details: https://osprey-bids.readthedocs.io/en/latest/
