@@ -81,17 +81,19 @@ model at 3 ppm in the HERCULES GABA-edited difference spectrum (https://doi.org/
 	"MM3coModel": "1to1GABAsoft"
 	"MM3coModel": "none"
 
-"freeGauss" (default) defines the 3-ppm MM peak in the GABA-edited difference
-spectrum as a 2-proton Gaussian peak with a free full-width at half-maximum (FWHM)
-parameter to be estimated during modeling. "freeGauss" defines the 3-ppm MM peak in
-the GABA-edited difference spectrum as a 2-proton Gaussian peak with a fixed FWHM of 14 Hz.
-"3to2MM" defines a composite MM basis function combining the 3-ppm and the 0.9-ppm MM
-peaks with an amplitude ratio of 3 to 2. "3to2MMsoft" employs soft constraints during
-modeling to enforce an amplitude ratio of 3 to 2 for the 3-ppm and the 0.9-ppm MM peak.
-"1to1GABA" defines a composite basis function combining the 3-ppm MM peak and the GABA
-basis function. "1to1GABAsoft" employs soft constraints during modeling to enforce an
-amplitude ratio of 1 to 1 for the 3-ppm MM peak and the GABA basis function.
-More information can be found here (https://doi.org/10.1002/nbm.4618)
+ - "freeGauss" (default) defines the 3-ppm MM peak in the GABA-edited difference
+   spectrum as a 2-proton Gaussian peak with a free full-width at half-maximum (FWHM)
+   parameter to be estimated during modeling.
+ - "fixedGauss" defines the 3-ppm MM peak in the GABA-edited difference spectrum as a 
+   2-proton Gaussian peak with a fixed FWHM of 14 Hz.
+ - "3to2MM" defines a composite MM basis function combining the 3-ppm and the 0.9-ppm MM
+   peaks with an amplitude ratio of 3 to 2. 
+ - "3to2MMsoft" employs soft constraints during modeling to enforce an amplitude ratio of 3 to 2
+   for the 3-ppm and the 0.9-ppm MM peak.
+ - "1to1GABA" defines a composite basis function combining the 3-ppm MM peak and the GABA
+   basis function. "1to1GABAsoft" employs soft constraints during modeling to enforce an
+   amplitude ratio of 1 to 1 for the 3-ppm MM peak and the GABA basis function.
+   More information can be found here (https://doi.org/10.1002/nbm.4618)
 
 The next option allows to change the FWHM (in Hz) of the Gaussian peak of the 3-ppm MM peak: ::
 
