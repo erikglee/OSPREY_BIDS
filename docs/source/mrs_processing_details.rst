@@ -101,7 +101,7 @@ The next option allows to change the FWHM (in Hz) of the Gaussian peak of the 3-
 
 Finally, a set of options governs the spectral fit range
 (the frequency over which the model is optimized) as well
-as the stiffness of the baseline:
+as the stiffness of the baseline.
 
 The option to modify the metabolite model frequency range in ppm: ::
 
