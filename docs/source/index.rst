@@ -41,4 +41,5 @@ The utility of this application is largely three-fold:
    usage
    expected_inputs
    processing_pipeline_details
+   osprey_details
 
