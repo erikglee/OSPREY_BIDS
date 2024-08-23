@@ -16,7 +16,7 @@ Where version_num denotes the specific version of the container. All available
 versions of the container can be found `here <https://hub.docker.com/r/dcanumn/osprey/tags>`_.
 
 After downloading the container, singularity is the only other dependency needed
-for processing. The full usage details can be seen under the usage section, but
+for processing. The full usage details can be seen under the :doc:`usage section <usage>`, but
 the basic command to run the container is as follows: ::
     
         container_path=/path/to/container.sif
