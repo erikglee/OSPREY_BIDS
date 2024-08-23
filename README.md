@@ -1,5 +1,5 @@
 
-# Osprey-BIDS Derivative Tool
+# Osprey-BIDS
 
 [![Documentation Status](https://readthedocs.org/projects/osprey-bids/badge/?version=latest)](https://osprey-bids.readthedocs.io/en/latest/)
 
