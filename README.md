@@ -19,6 +19,9 @@ This project is based on [Osprey](https://schorschinho.github.io/osprey/), which
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
+## DOI
+
+[![DOI](https://zenodo.org/badge/511561432.svg)](https://zenodo.org/doi/10.5281/zenodo.13367655)
 
 
 Please see the ReadTheDocs page for documentation details: https://osprey-bids.readthedocs.io/en/latest/
