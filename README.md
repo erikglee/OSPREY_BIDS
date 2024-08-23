@@ -13,7 +13,7 @@ Comprehensive documentation for this derivative tool is available at [Read the D
 
 This project is based on [Osprey](https://schorschinho.github.io/osprey/), which is licensed under the MIT License, and described in more detail in the following reference. We ask that any works that utilize this tool cite the original publication:
 
-https://pubmed.ncbi.nlm.nih.gov/32603810/
+[G Oeltzschner, HJ Zöllner, SCN Hui, M Mikkelsen, MG Saleh, S Tapper, RAE Edden. Osprey: Open-Source Processing, Reconstruction  & Estimation of Magnetic Resonance Spectroscopy Data. J Neurosci Meth 343:108827 (2020).](https://doi.org/10.1016/j.jneumeth.2020.108827)
 
 ## License
 
