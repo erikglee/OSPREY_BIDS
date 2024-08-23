@@ -39,7 +39,7 @@ files will be determined through the json_settings file that is passed to OSPREY
 as a positional argument. An example of this type of JSON can be seen in the
 codeblock later in this document.
 
-As explained in the Configuration of :doc:`MRS Processing <mrs_processing_details.rst>`
+As explained in the Configuration of :doc:`MRS Processing <mrs_processing_details>`
 section, the json file is a heirarchical dictionary. At
 the first level of the heirarchy, the keys describe one grouping of processing
 settings. For HBCD these two keys are "HERCULES" and "unedited". These
