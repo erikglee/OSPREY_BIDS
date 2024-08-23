@@ -9,13 +9,15 @@ Configuration of MRS Processing
 Default processing options
 ==========================
 
-The minimum input parameters for the Osprey analysis are shown in the JSON Configuration section.
+The minimum input parameters for the Osprey analysis are shown in the :doc:`Expected Inputs <expected_inputs>` section.
 For "HERCULES" scans, the parameters "seqType" (default value = "HERCULES"),
 "editTarget" (default value = ["GABA", "GSH"]), and "ECCmetab" (default value = "1") should
 not be modified as they are required for correct processing.
 Similarly, "seqType" (default value = "UnEdited") and "ECCmetab" (default value = "1")
-should also not be modified for the "unedited" short-TE datasets. All parameter options
-that users can set in Osprey job files are explained in detail in the documentation (https://schorschinho.github.io/osprey/)
+should also not be modified for the "unedited" short-TE datasets.
+
+All parameter options that users can set in Osprey job files
+are explained in detail in the documentation (https://schorschinho.github.io/osprey/)
 and example job files (in the ‘exampledata’ folder at https://github.com/schorschinho/osprey)
 and in the original Osprey publication (https://doi.org/10.1016/j.jneumeth.2020.108827).
 
