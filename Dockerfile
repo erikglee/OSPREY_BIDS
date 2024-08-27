@@ -52,8 +52,8 @@ RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v2.4.0.zip -O /code/code.
     && unzip -q ./code.zip \
     && rm /code/code.zip
 RUN mkdir /python_code
-COPY ./code/run.py /python_code
-COPY ./code/localizer_alignment.py /python_code 
+COPY ./python_code/run.py /python_code
+COPY ./python_code/localizer_alignment.py /python_code 
 COPY hbcd_pilot_config.json /python_code
 
 #Download the basis sets
