@@ -375,7 +375,7 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
     mask_data = None
     if 'files_seg' in anat_files_dict.keys():
         seg_path = anat_files_dict['files_seg'][0][0]
-        mask_path = seg_path.replace('desc-aseg_dseg.nii.gz', 'desc-brain_mask.json')
+        mask_path = seg_path.replace('desc-aseg_dseg.nii.gz', 'desc-brain_mask.nii.gz')
         if os.path.exists(mask_path):
             mask_data = nib.load(mask_path).get_fdata()
             mask_data = ndimage.binary_dilation(mask_data, iterations = 50)
