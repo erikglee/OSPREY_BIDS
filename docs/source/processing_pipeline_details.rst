@@ -27,9 +27,9 @@ which has contains a subset of information not covered here.
    processing. Alterntively, the subject will be the fundamental unit of files for processing.
 2. Search for the T1w and or T2w image to utilize as the high resolution anatomical for
    the session. Whether a T1w or T2w image is used is based on availability within the
-   BIDS dataset, and based on the --preferred_anat_modality. There must be no more than 1
+   BIDS dataset, and based on the \-\-preferred_anat_modality. There must be no more than 1
    image with the preferred anat modality. If there is a localizer image that also has
-   this modality, then the --terms_not_allowed_in_anat flag should be used to avoid
+   this modality, then the \-\-terms_not_allowed_in_anat flag should be used to avoid
    ambiguity. If there are 0 images from the preferred modality, then OSPREY will
    check if an image within the backup modality (i.e. T2w for T1w or T1w for T2w) is
    available to use instead.

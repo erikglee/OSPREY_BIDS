@@ -134,7 +134,7 @@ The "aseg" nifti segmentation files listed above should have the same numeric co
 labeled as other (which includes regions like ventricles, or unassigned voxels with a numeric value of
 0) will be assumed to be CSF during the partial volume correction procedure.
 
-If the "--segmentation_dir" flag is not provided, OSPREY will instead utilize SPM segmentation routines
+If the "\-\-segmentation_dir" flag is not provided, OSPREY will instead utilize SPM segmentation routines
 to come up with estimates for grey matter, white matter, and cerebrospinal fluid.
 
 Localizer
@@ -153,7 +153,7 @@ images at the following path: ::
    bids_dir/sub-<label>[/ses-<label>]/anat/[search_term]
 
 In the above example, search term is set by the \-\-localizer_search_term flag and is
-*localizer*.nii* by default. In HBCD, the \-\-localizer_search_term value is \*mrsLocAx\*.nii\*. If a given
+\*localizer\*.nii\* by default. In HBCD, the \-\-localizer_search_term value is \*mrsLocAx\*.nii\*. If a given
 session directory has more than one localizer image then the behavior of OSPREY will depend
 on what type of metadata is available in the JSON sidecars.
 
