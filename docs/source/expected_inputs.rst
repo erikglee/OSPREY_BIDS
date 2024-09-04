@@ -51,7 +51,9 @@ Within each json file there will be a "prerequisites" section. This section can
 have two fields including "files" and "files_ref". Each of these fields then has
 an associated pattern that will be used with the python glob package to determine
 whether a given file in the mrs section of a BIDS dataset matches what is expected
-for processing.
+for processing. The example JSON content shown below is what is used for HBCD processing.
+To better understand what fields can be included in configuration files, and what values
+can be included, please see the :doc:`MRS Processing Details <mrs_processing_details>` section.
 
 .. code-block:: json
 
