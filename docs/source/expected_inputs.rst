@@ -23,11 +23,11 @@ folder as follows: ::
 
 In this example, both a T1w and T2w image are present. Only one of the
 two images will be selected for processing. Which image is selected
-will depend on whether --preferred_anat_modality has a value of T1w or T2w.
+will depend on whether \-\-preferred_anat_modality has a value of T1w or T2w.
 For whichever preferred anat modality is present, there must be exactly one
 anatomcial image for the application to choose from. If you also have a
 localizer in the anat directory with a T1w/T2w ending, you can utilize
-the --terms_not_allowed_in_anat flag to tell the program about what character
+the \-\-terms_not_allowed_in_anat flag to tell the program about what character
 sequences can be used to ensure localizer (or other) scans aren't mistakenly
 identified as high resolution anatomical images.
 
@@ -111,7 +111,7 @@ These inputs are always used in the Healthy Brain and Child Developement (HBCD) 
 but are not strictly required for processing.
 
 The first optional input is a segmentation directory which is passed to the application
-through the "--segmentation_dir" flag. The segmentation directory acts as a BIDS derivatives
+through the "\-\-segmentation_dir" flag. The segmentation directory acts as a BIDS derivatives
 directory that has the following files for each subject and session to be processed: ::
 
    /segmentation_dir/sub-<label>[/ses-<label>]/anat/sub-<label>[_ses-<label>]_space-<modality>_desc-aseg_dseg.nii.gz
@@ -126,7 +126,7 @@ the segmentation corresponds with what OSPREY_BIDS has already selected for proc
 
 If these segmentation files are present, they will be used to correct for partial tissue effects
 within the MRS voxel. To avoid ambiguity in processing outputs, any processing that is attempted
-with the "--segmentation_dir" flag will only complete if a segmentation can be identified to use
+with the "\-\-segmentation_dir" flag will only complete if a segmentation can be identified to use
 during processing.
 
 The "aseg" nifti segmentation files listed above should have the same numeric coding as FreeSurfer
@@ -146,21 +146,21 @@ your data, you should be collecting a localizer scan prior to the MRS acquisitio
 register the MRS voxel to the high resolution anatomical.
 
 If you have localizer images that could be used for this purpose, you should use the
---localizer_registration flag. This will tell OSPREY that you have a localizer image
+\-\-localizer_registration flag. This will tell OSPREY that you have a localizer image
 that should be used for registration purposes. By default, OSPREY will look for localizer
 images at the following path: ::
 
    bids_dir/sub-<label>[/ses-<label>]/anat/[search_term]
 
-In the above example, search term is set by the --localizer_search_term flag and is
-*localizer*.nii* by default. In HBCD, the --localizer_search_term value is *mrsLocAx*.nii*. If a given
+In the above example, search term is set by the \-\-localizer_search_term flag and is
+*localizer*.nii* by default. In HBCD, the \-\-localizer_search_term value is \*mrsLocAx\*.nii\*. If a given
 session directory has more than one localizer image then the behavior of OSPREY will depend
 on what type of metadata is available in the JSON sidecars.
 
 - If the MRS data does not have an associated SeriesInstanceUID field in its JSON, then we
   will assume that the last localizer (measured by SeriesInstanceUID) should be used for
   registration purposes.
-- If the flag --require_same_mrs_localizer_suid is activated, both MRS JSONs and Localizer
+- If the flag \-\-require_same_mrs_localizer_suid is activated, both MRS JSONs and Localizer
   JSONs will be checked for the StudyInstanceUID field. If this flag is activated, OSPREY
   will ensure that only (MRS + localizer) files with matching StudyInstanceUID fields
   will be used together. The exception to this is if the MRS file has the string value
@@ -176,5 +176,5 @@ on what type of metadata is available in the JSON sidecars.
   the image data for both images to be a point cloud. The combined points from all localizers
   will then be used for registration with the high resolution anatomical image.
 
-If you want to utilize the --localizer_registration flag, you must also use
-the --segmentation_dir flag. 
+If you want to utilize the \-\-localizer_registration flag, you must also use
+the \-\-segmentation_dir flag. 
