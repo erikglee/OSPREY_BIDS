@@ -6,11 +6,13 @@
 Usage
 =====
 
-The design of the application is meant to follow general 
-`BIDS-App guidelines <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
-For more details on general usage principles of BIDS-Apps, see the linked documentation.
+This page provides an example of how this application can be called, and further what the different arguments mean.
+The design of the application is meant to follow general `BIDS-App guidelines <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
+For more details on general usage principles of BIDS-Apps, see the linked `documentation  <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
+For more details on the overall workflow of the containerized application see the :doc:`Expected Inputs <expected_inputs>`,
+:doc:`Processing Pipeline Details <processing_pipeline_details>`, and :doc:`Configuration of MRS Processing <mrs_processing_details>` sections. 
 
-As described in the installation section, this tool is meant to be
+As described in the :doc:`installation <installation>` section, this tool is meant to be
 interacted with in containerized form. The example below shows the
 general layout for how you may want to interact with the container
 to conduct processing if you have the container downloaded as a

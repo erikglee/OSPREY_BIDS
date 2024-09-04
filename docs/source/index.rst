@@ -18,8 +18,9 @@ The utility of this application is largely three-fold:
 1. To make the core functionality of OSPREY available via Docker/Singularity
    containers so that users do not need to install any dependencies or have a Matlab
    license before processing.
-2. Extending OPSREY to have BIDS App functionality. OSPREY_BIDS takes as input a BIDS
-   dataset, automates processing by assuming the input follows BIDS guidelines, and structures
+2. Extending OPSREY to have `BIDS App <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_ 
+   functionality. OSPREY_BIDS takes as input a `BIDS dataset <https://bids-specification.readthedocs.io/en/stable/>`_,
+   automates processing by assuming the input follows BIDS guidelines, and structures
    processing outputs using general BIDS derivatives principles.
 3. Registration. OSPREY_BIDS allows for registering high anatomical T1w/T2w images
    to a localizer image collected immediately before/after the MRS acquisition. This
