@@ -47,7 +47,7 @@ RUN wget https://s3.msi.umn.edu/leex6144-public/v912.zip -O /mcr_path/mcr.zip \
 
 #Download the unique code for this project
 RUN mkdir /code
-RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v2.4.0.zip -O /code/code.zip \
+RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_v2.4.2.zip -O /code/code.zip \
     && cd /code \
     && unzip -q ./code.zip \
     && rm /code/code.zip
