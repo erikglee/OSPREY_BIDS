@@ -379,6 +379,7 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
         if os.path.exists(mask_path):
             mask_data = nib.load(mask_path).get_fdata()
             mask_data = ndimage.binary_dilation(mask_data, iterations = 50)
+            print("Finished Dilating Mask.")
     if type(mask_data) == type(None):
         mask_data = np.ones(reference_data.shape)
 
