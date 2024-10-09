@@ -328,7 +328,8 @@ def make_readme(affine_readme_path):
     return
 
 
-def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_folder, localizer_paths):
+def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_folder,
+                                           localizer_paths, brain_mask_path = None):
     '''Registers anat reference image to the localizer image(s)
     
     
@@ -371,6 +372,18 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
     reference_img = nib.load(reference_path)
     reference_data = reference_img.get_fdata()
 
+    mask_data = None
+    if 'files_seg' in anat_files_dict.keys():
+        seg_path = anat_files_dict['files_seg'][0][0]
+        mask_path = seg_path.replace('desc-aseg_dseg.nii.gz', 'desc-brain_mask.nii.gz')
+        if os.path.exists(mask_path):
+            mask_data = nib.load(mask_path).get_fdata()
+            mask_data = ndimage.binary_dilation(mask_data, iterations = 50)
+            print("Finished Dilating Mask.")
+    if type(mask_data) == type(None):
+        mask_data = np.ones(reference_data.shape)
+
+
     #Load and dilate brain mask by 10 iterations ... this keeps the scalp in registration but not neck
     #USING MASK SEEMED TO HURT REGISTRATION FOR LOWRES LOCALIZERS SO AM EXCLUDING THIS FOR NOW
     #mask_data = nib.load(brain_mask_path).get_fdata()
@@ -379,8 +392,6 @@ def localizer_alignment_anat_update_osprey(anat_files_dict, registration_output_
 
     reference_data_10mm_smoothing = processing.smooth_image(reference_img, 10).get_fdata()
     reference_com = calc_center_of_mass(reference_data, reference_img.affine)
-    mask_data = np.ones(reference_data.shape) #we arent using a mask right now so this is just a dummy mask
-    #reference_com = None
 
     localizer_imgs = []
     xyz_s_list = []
