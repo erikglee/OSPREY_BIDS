@@ -19,10 +19,10 @@ that is registered to (a), and (e) a localizer image that is (intrinsically) reg
 In this section, we describe how OSPREY_BIDS utilizes (a-e) to do processing. This section
 is not meant to describe how input files should be formatted, but rather how they are
 used by the OSPREY_BIDS pipeline. Prior to reading this, read the :doc:`expected inputs <expected_inputs>`
-section which has contains a subset of information not covered here.
+section which contains a subset of information not covered here.
 
-1. OSPREY_BIDS starts by finding the first group of files (whether a subject or session), that
-   will be used for processing. Within OSPREY, a subject is first identified within the BIDS dataset.
+1. OSPREY_BIDS starts by first finding the group of files (whether a subject or session), that
+   will be used for processing. A subject is first identified within the BIDS dataset.
    If this subject has sessions, then the session will be the fundamental unit of files to use for
    processing. Alterntively, the subject will be the fundamental unit of files for processing.
 2. The tool then searches for the T1w and or T2w image to utilize as the high resolution anatomical for
@@ -33,7 +33,7 @@ section which has contains a subset of information not covered here.
    ambiguity. If there are 0 images from the preferred modality, then OSPREY will
    check if an image within the backup modality (i.e. T2w for T1w or T1w for T2w) is
    available to use instead.
-3. If --segmentation_dir is specified, the tool tries to identify a segmentation that matches the 
+3. If \-\-segmentation_dir is specified, the tool tries to identify a segmentation that matches the 
    selected anatomical reference. If possible, it confirms the correspondance between the
    segmentation and the anatomical images by utilizing the 'SpatialReference' field from
    the semgentation's JSON.

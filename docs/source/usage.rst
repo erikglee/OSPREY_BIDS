@@ -8,7 +8,7 @@ Usage
 
 This page provides an example of how this application can be called, and further what the different arguments mean.
 The design of the application is meant to follow general `BIDS-App guidelines <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
-For more details on general usage principles of BIDS-Apps, see the linked `documentation  <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
+For more details on general usage principles of BIDS-Apps, see the linked `publication  <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
 For more details on the overall workflow of the containerized application see the :doc:`Expected Inputs <expected_inputs>`,
 :doc:`Processing Pipeline Details <processing_pipeline_details>`, and :doc:`Configuration of MRS Processing <mrs_processing_details>` sections. 
 

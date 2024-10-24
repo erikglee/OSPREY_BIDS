@@ -8,12 +8,12 @@ Installation
 
 The intended use of this pipeline is through the use of a `Singularity <https://docs.sylabs.io/guides/3.7/user-guide/index.html>`_ or `Docker <https://docs.docker.com/get-started/>`_
 image. The image can be built using the Dockerfile found in the `repository <https://github.com/erikglee/OSPREY_BIDS>`_,
-or it can be pulled from `Dockerhub <https://hub.docker.com/r/dcanumn/osprey/>`_ as a singularity using the following command: ::
+or it can be pulled from `Dockerhub <https://hub.docker.com/r/dcanumn/osprey-bids/tags>`_ as a singularity using the following command: ::
     
         singularity pull docker://dcanumn/osprey:<version_num>
 
 Where version_num denotes the specific version of the container. All available
-versions of the container can be found `here <https://hub.docker.com/r/dcanumn/osprey/tags>`_.
+versions of the container can be found `here <https://hub.docker.com/r/dcanumn/osprey-bids/tags>`_.
 
 After downloading the container, singularity is the only other dependency needed
 for processing. The full usage details can be seen under the :doc:`usage section <usage>`, but

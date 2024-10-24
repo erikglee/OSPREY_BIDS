@@ -57,12 +57,13 @@ can be included, please see the :doc:`MRS Processing Details <mrs_processing_det
 
 .. code-block:: json
 
-   {
+{
     "HERCULES": {
         "seqType": "HERCULES",
         "editTarget": ["GABA","GSH"],
         "MM3coModel": "freeGauss",
         "ECCmetab": "1",
+        "SubSpecOrder": [4,2,3,1],
         "prerequisites": {
             "files" : "*_acq-hercules_*svs.nii*",
             "files_ref" : "*_acq-hercules_*ref.nii*"
@@ -74,9 +75,9 @@ can be included, please see the :doc:`MRS Processing Details <mrs_processing_det
         "prerequisites": {
             "files" : "*_acq-shortTE_*svs.nii*",
             "files_ref" : "*_acq-shortTE_*ref.nii*"
-            }
-      }
-   }
+        }
+    }
+}
 
 
 MRS Files
